@@ -76,6 +76,10 @@ Upstage Document Parse·Information Extract로 매물 정보를 구조화하고,
 
 > 스키마 확정 후 채우기: 매물, 찜, 분석기록, 비교목록, 거래상태, 마이페이지 집계용 테이블
 
+### Git 작업
+- 에이전트는 `git commit`, `git push`를 스스로 판단해서 실행하지 않는다
+- 커밋/푸시가 필요하다고 판단되면 사람에게 먼저 제안하고, 명시적으로 지시받았을 때만 실행한다
+
 ## 참고
 
 - Analysis History, Product Rules, Scam Patterns, Checklist Templates 중 Product Rules·Scam Patterns·Checklist Templates는 Backend A 소관 (Rule Engine·체크리스트 생성 로직 참조용)
