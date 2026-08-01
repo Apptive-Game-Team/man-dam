@@ -11,7 +11,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.actions import EMOJI
 from app.graph import perform, random_topic
-from app.llm import require_api_key
+from app.llm import require_all_keys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    require_api_key()  # 첫 만담 도중이 아니라 기동할 때 터지게 한다
+    require_all_keys()  # 첫 만담 도중이 아니라 기동할 때 터지게 한다
     yield
 
 
