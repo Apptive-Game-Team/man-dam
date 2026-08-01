@@ -6,19 +6,22 @@
 <title>만담</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* 밝고 조용한 단톡방. 화면이 아니라 대사가 주인공이므로 색은 하나만 쓴다.
+   종이색 바탕, 먹색 글자, 감빛 액센트. 보케는 흰 카드, 츳코미는 먹색 카드로
+   갈린다. 배역 이름은 어디에도 쓰지 않는다. */
 :root {
-  color-scheme: dark; /* 스크롤바까지 무대에 맞춘다 */
-  --stage: #17111c;
-  --stage-deep: #0c080f;
-  --spot: #f0a84a;
-  --cream: #f6ead6;
-  --boke: #f6ead6;
-  --boke-ink: #241a12;
-  --tsukkomi: #2ec4b6;
-  --tsukkomi-ink: #05201d;
-  --dim: #9c8fa6;
+  color-scheme: light;
+  --paper: #f7f5f1;
+  --card: #ffffff;
+  --ink: #1c1a18;
+  --ink-soft: #6b645d;
+  --line: #e5e0d8;
+  --dark: #262220;      /* 츳코미 말풍선 */
+  --dark-ink: #f7f5f1;
+  --accent: #c0492c;    /* 감빛. 아껴 쓴다 */
+  --font: "IBM Plex Sans KR", "Apple SD Gothic Neo", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -26,227 +29,353 @@
 body {
   margin: 0;
   min-height: 100dvh;
-  font-family: "Gowun Dodum", sans-serif;
-  color: var(--cream);
-  background:
-    radial-gradient(120% 70% at 50% -10%, rgba(240, 168, 74, 0.22), transparent 60%),
-    radial-gradient(80% 50% at 50% 0%, rgba(240, 168, 74, 0.35), transparent 45%),
-    linear-gradient(180deg, var(--stage) 0%, var(--stage-deep) 100%);
-  background-attachment: fixed;
-}
-
-/* 무대 바닥 스포트라이트 웅덩이 */
-body::before {
-  content: "";
-  position: fixed;
-  inset: auto 0 0 0;
-  height: 40vh;
-  background: radial-gradient(60% 100% at 50% 100%, rgba(240, 168, 74, 0.14), transparent 70%);
-  pointer-events: none;
-}
-
-/* 필름 그레인 */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.28;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-main {
-  position: relative;
-  max-width: 46rem;
-  margin: 0 auto;
-  padding: 0 1.25rem 4rem;
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  overflow-x: hidden;
+  font-family: var(--font);
+  color: var(--ink);
+  background: linear-gradient(180deg, #fffdfa 0%, var(--paper) 38%) no-repeat;
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
 }
 
-header {
-  padding: 3.5rem 0 2rem;
-  text-align: center;
+/* ── 제목 레일 ────────────────────────────────────────────────
+   제목은 한 줄로 접는다. 첫 화면의 주인공은 만담이지 제목이 아니다. */
+.rail {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem clamp(0.75rem, 3vw, 1.4rem);
+  background: rgba(255, 253, 250, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
 }
 
-h1 {
-  font-family: "Black Han Sans", sans-serif;
-  font-size: clamp(3.2rem, 14vw, 6rem);
-  letter-spacing: 0.06em;
-  margin: 0;
-  line-height: 0.9;
-  color: var(--spot);
-  text-shadow: 0 0 40px rgba(240, 168, 74, 0.45), 0 6px 0 rgba(0, 0, 0, 0.35);
+.mark {
+  font-size: clamp(1.05rem, 4.2vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.cast {
-  margin-top: 1.1rem;
-  font-size: 0.85rem;
-  letter-spacing: 0.22em;
-  color: var(--dim);
+/* 액센트는 여기 점 하나로만 등장한다 */
+.mark::after {
+  content: "";
+  display: inline-block;
+  width: 0.32rem;
+  height: 0.32rem;
+  margin-left: 0.28rem;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 0.28em;
 }
-
-.cast b { color: var(--cream); font-weight: normal; }
 
 .topic {
-  margin-top: 1.6rem;
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  flex: 1;
+  min-width: 0; /* 375px에서 폼이 레일 밖으로 삐져나오지 않게 */
+  justify-content: flex-end;
+  gap: 0.4rem;
 }
 
 .topic input,
 .topic button {
   font: inherit;
-  font-size: 0.95rem;
-  padding: 0.55rem 0.95rem;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 999px;
-  border: 1px solid rgba(246, 234, 214, 0.22);
-  background: rgba(246, 234, 214, 0.06);
-  color: var(--cream);
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
 }
 
-.topic input { min-width: 12rem; text-align: center; }
+.topic input {
+  flex: 1;
+  min-width: 0;
+  max-width: 13rem;
+  text-align: center;
+}
+
 .topic input:focus-visible,
-.topic button:focus-visible { outline: 2px solid var(--spot); outline-offset: 2px; }
+.topic button:focus-visible,
+.mark:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .topic button {
   cursor: pointer;
-  border-color: var(--spot);
-  color: var(--spot);
+  font-weight: 600;
+  border-color: var(--accent);
+  color: var(--accent);
   white-space: nowrap;
 }
 
-.topic button:hover { background: var(--spot); color: var(--stage-deep); }
+.topic button:hover { background: var(--accent); color: #fff; }
 
-#chat {
+/* ── 대화 ───────────────────────────────────────────────────── */
+main {
   flex: 1;
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.5rem clamp(0.9rem, 4vw, 1.5rem) 4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.4rem;
-  padding-top: 1rem;
 }
 
+#chat {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* align-items를 주지 않으면 짧은 대사도 줄 너비만큼 늘어난다. 말풍선은
+   글자 길이만큼만 차지해야 긴 대사와 짧은 대사가 같이 읽힌다. */
 .line {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  max-width: 82%;
-  animation: rise 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  align-self: flex-start;
+  align-items: flex-start;
+  gap: 0.3rem;
+  max-width: min(85%, 30rem);
 }
 
 .line.tsukkomi { align-self: flex-end; align-items: flex-end; }
 
-@keyframes rise {
-  from { opacity: 0; transform: translateY(1.2rem) scale(0.96); }
-  to   { opacity: 1; transform: none; }
-}
-
+/* 이름표. 배역이 아니라 이름만 나온다. */
 .who {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  color: var(--dim);
+  gap: 0.4rem;
+  padding: 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  animation: fade 0.28s ease both;
+}
+
+.who::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--ink-soft);
+  background: var(--card);
 }
 
 .line.tsukkomi .who { flex-direction: row-reverse; }
+.line.tsukkomi .who::before { background: var(--dark); border-color: var(--dark); }
 
-.line.error { align-self: center; align-items: center; max-width: 100%; }
-.line.error .bubble {
-  background: rgba(226, 90, 90, 0.14);
-  color: #ffc9c9;
-  border: 1px solid rgba(226, 90, 90, 0.4);
-  font-size: 0.95rem;
+/* 대사는 한 박자 늦게, 살짝 기울어 들어온다. 그냥 튀어나오지 않는다. */
+.bubble {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-radius: 1.05rem 1.05rem 1.05rem 0.3rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  word-break: keep-all;      /* 한국어는 어절 단위로 끊어야 읽힌다 */
+  overflow-wrap: anywhere;   /* 띄어쓰기 없는 긴 덩어리도 가둔다 */
+  transform-origin: bottom left;
+  animation: swing 0.42s cubic-bezier(0.2, 0.85, 0.3, 1.1) 0.05s both;
 }
 
-/* 이모티콘은 말풍선 없이 그 자체로 한 개의 메시지다. 카톡과 같다. */
+.line.boke .bubble {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(28, 26, 24, 0.04);
+}
+
+.line.tsukkomi .bubble {
+  background: var(--dark);
+  color: var(--dark-ink);
+  border-radius: 1.05rem 1.05rem 0.3rem 1.05rem;
+  font-weight: 500;
+  transform-origin: bottom right;
+  animation-name: swing-right;
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes swing {
+  from { opacity: 0; transform: translateY(0.5rem) rotate(-0.9deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes swing-right {
+  from { opacity: 0; transform: translateY(0.5rem) rotate(0.9deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* 사고는 대사가 아니다. 가운데 쪽지로 구분한다. */
+.line.error { align-self: center; align-items: center; max-width: 100%; }
+.line.error .who { display: none; }
+.line.error .bubble {
+  background: none;
+  border: 1px dashed var(--accent);
+  border-radius: 0.5rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: none;
+  animation: fade 0.28s ease both;
+}
+
+/* 이모티콘은 말풍선에 얹는 장식이 아니라 그 자체로 한 개의 메시지다. */
+.sticker { max-width: none; }
 .sticker .emoji {
   display: block;
+  width: 132px;
+  height: 132px;
+  max-width: 38vw;
+  max-height: 38vw;
+  /* 에셋 테두리가 밝아서 흰 바탕에 묻힌다. 그림자로 떼어 놓는다. */
+  filter: drop-shadow(0 2px 6px rgba(28, 26, 24, 0.16));
   animation: pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.6) both;
 }
 
 @keyframes pop {
-  from { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+  from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
   to   { opacity: 1; transform: none; }
 }
 
-.bubble {
-  margin: 0;
-  padding: 0.85rem 1.15rem;
-  border-radius: 1.1rem;
-  font-size: 1.05rem;
-  line-height: 1.55;
-  word-break: keep-all;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-}
-
-.line.boke .bubble {
-  background: var(--boke);
-  color: var(--boke-ink);
-  border-top-left-radius: 0.25rem;
-}
-
-.line.tsukkomi .bubble {
-  background: var(--tsukkomi);
-  color: var(--tsukkomi-ink);
-  border-top-right-radius: 0.25rem;
-  font-weight: bold;
-}
-
+/* ── 대본 쓰는 중 ─────────────────────────────────────────────
+   기획 호출에만 20초 넘게 걸린다. 그동안 화면을 비워두지 않는다. */
 .preparing {
-  text-align: center;
-  color: var(--dim);
-  font-size: 0.95rem;
-  letter-spacing: 0.1em;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin: 0;
   padding: 2rem 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-.preparing span {
-  animation: blink 1.2s steps(1) infinite;
+.preparing b {
+  font-size: clamp(1.15rem, 5.5vw, 1.35rem);
+  font-weight: 700;
+  color: var(--ink);
 }
 
-.preparing span:nth-child(2) { animation-delay: 0.4s; }
-.preparing span:nth-child(3) { animation-delay: 0.8s; }
-
-@keyframes blink {
-  0%, 33% { opacity: 0; }
-  34%, 100% { opacity: 1; }
+/* ── 박자 ────────────────────────────────────────────────────
+   점 세 개짜리 말풍선 하나가 "지금 누가 쓰고 있다"를 뜻한다. 대본을
+   기다리는 동안에도, 줄과 줄 사이 1~3초에도 같은 것을 쓴다. 서버가 대사를
+   읽는 속도로 흘리기 때문에 그 침묵이 멈춤이 아니라 박자로 보여야 한다. */
+.beat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  margin: 1.1rem 0 0;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 1.05rem 1.05rem 1.05rem 0.3rem;
+  background: var(--card);
 }
+
+.beat i {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  animation: bounce 1.25s ease-in-out infinite;
+}
+
+.beat i:nth-child(2) { animation-delay: 0.15s; }
+.beat i:nth-child(3) { animation-delay: 0.3s; }
+
+.preparing .beat { align-self: center; margin-top: 0.35rem; }
+
+@keyframes bounce {
+  0%, 60%, 100% { opacity: 0.3; transform: none; }
+  30%           { opacity: 1; transform: translateY(-0.18rem); }
+}
+
+/* 아직 아무 대사도 없으면 박자를 셀 것이 없고, 끝났으면 셀 이유가 없다. */
+#chat:empty ~ .beat,
+#chat:has(.curtain) ~ .beat { display: none; }
 
 /* 첫 대사가 붙으면 #chat이 더는 비어있지 않다. 그때 알아서 사라진다. */
 #chat:not(:empty) ~ .preparing { display: none; }
 
+/* ── 끝 ──────────────────────────────────────────────────────
+   대본이 끝나면 서버가 마지막 조각으로 이걸 보낸다. 스트림이 조용히
+   끊기는 것과 만담이 끝난 것은 화면에서 달라야 한다. */
+.curtain {
+  margin: 1.4rem 0 0;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  animation: fade 0.5s ease both;
+}
+
+.curtain-label {
+  display: inline-block;
+  padding: 0.3rem 0.95rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.curtain-note {
+  display: block;
+  margin-top: 0.7rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+/* 선택자를 하나씩 나열하면 `.sticker .emoji` 처럼 더 구체적인 규칙이 이겨서
+   조용히 새어 나간다. 통째로 끈다. */
 @media (prefers-reduced-motion: reduce) {
-  .line, .emoji, .preparing span { animation: none; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .beat i { opacity: 0.55; }
 }
 </style>
 </head>
 <body>
+<header class="rail">
+  <a class="mark" href="/">만담</a>
+  <form class="topic" method="get" action="/">
+    <input name="topic" value="{{ topic }}" aria-label="만담 주제" maxlength="40" required>
+    <button type="submit">이 주제로</button>
+  </form>
+</header>
+
 <main>
-  <header>
-    <h1>만담</h1>
-    <p class="cast">오늘의 두 사람이 방금 정해집니다</p>
-
-    <form class="topic" method="get" action="/">
-      <input name="topic" value="{{ topic }}" aria-label="만담 주제" maxlength="40" required>
-      <button type="submit">이 주제로</button>
-    </form>
-  </header>
-
   <div id="chat"
+       role="log"
+       aria-live="polite"
        hx-ext="sse"
        sse-connect="/stream?topic={{ topic | urlencode }}"
        sse-swap="message"
        sse-close="close"
        hx-swap="beforeend"></div>
 
-  <!-- 기획 호출이 끝나야 첫 대사가 나온다. 그동안 무대를 비워두지 않는다.
+  <p class="beat" aria-hidden="true"><i></i><i></i><i></i></p>
+
+  <!-- 기획 호출이 끝나야 첫 대사가 나온다. 그동안 화면을 비워두지 않는다.
        첫 말풍선이 붙는 순간 #chat이 비지 않게 되어 CSS가 알아서 감춘다. -->
-  <p class="preparing" aria-live="polite">무대 뒤에서 대본 짜는 중<span>.</span><span>.</span><span>.</span></p>
+  <p class="preparing">
+    <b>대본 쓰는 중</b>
+    <span>두 사람이 곧 시작합니다</span>
+    <span class="beat" aria-hidden="true"><i></i><i></i><i></i></span>
+  </p>
 </main>
 
 <script src="https://unpkg.com/htmx.org@2.0.4"></script>

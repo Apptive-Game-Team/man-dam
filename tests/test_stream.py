@@ -10,7 +10,7 @@ from app.graph import (
     persona,
 )
 from app.llm import SOLAR, require_api_key
-from app.main import render_bubble, render_sticker, sse
+from app.main import render_bubble, render_curtain, render_sticker, sse
 
 PLAN = {
     "boke": {"name": "만식", "quirk": "카페를 상상으로 운영한다"},
@@ -60,6 +60,14 @@ def test_sticker_is_its_own_message():
     assert 'class="line tsukkomi sticker"' in html
     assert "/static/emoji/tsukkomi.svg" in html
     assert "bubble" not in html  # 말풍선에 얹히는 장식이 아니다
+
+
+def test_curtain_closes_the_show():
+    html = render_curtain()
+    # 화면이 이 클래스로 "끝났다"를 판별한다. `#chat:has(.curtain)` 가 박자
+    # 표시를 끄는 근거라서 클래스 이름이 곧 계약이다.
+    assert 'class="curtain"' in html
+    assert "만담 끝" in html
 
 
 def test_plan_reaches_the_prompt():
