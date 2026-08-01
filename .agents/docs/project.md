@@ -36,7 +36,7 @@ Agents must verify commands against repository configuration before running them
 | Purpose | Command |
 |---|---|
 | Install dependencies | `uv sync` |
-| Run locally | `uv run uvicorn app.main:app --reload` |
+| Run locally | `uv run uvicorn app.main:app --reload --env-file .env` |
 | Format | `uv run ruff format .` |
 | Lint | `uv run ruff check .` |
 | Type-check | TODO |
