@@ -2,8 +2,9 @@ import os
 
 import httpx
 
-API_URL = "https://api.deepseek.com/chat/completions"
-MODEL = "deepseek-chat"
+# Upstage Solar. OpenAI 호환 엔드포인트라 응답 형태가 같다.
+API_URL = "https://api.upstage.ai/v1/chat/completions"
+MODEL = "solar-pro3"
 TIMEOUT = httpx.Timeout(60.0)
 
 
@@ -12,10 +13,10 @@ def require_api_key() -> str:
 
     서버 기동 시점에 불러서 첫 만담 도중이 아니라 시작할 때 터지게 한다.
     """
-    key = os.environ.get("DEEPSEEK_API_KEY")
+    key = os.environ.get("UPSTAGE_API_KEY")
     if not key:
         raise RuntimeError(
-            "DEEPSEEK_API_KEY가 없다. .env에 넣고 `uv run uvicorn app.main:app --env-file .env` 로 실행한다."
+            "UPSTAGE_API_KEY가 없다. .env에 넣고 `uv run uvicorn app.main:app --env-file .env` 로 실행한다."
         )
     return key
 

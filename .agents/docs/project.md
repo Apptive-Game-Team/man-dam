@@ -14,17 +14,17 @@ Agents must verify commands against repository configuration before running them
 - Entry points: `app/main.py` (FastAPI ASGI 앱)
 - Main modules:
   - `app/graph.py` — LangGraph. 보케 노드 / 츳코미 노드 / 종료 판정
-  - `app/llm.py` — DeepSeek 클라이언트 (OpenAI 호환 엔드포인트)
+  - `app/llm.py` — Upstage Solar 클라이언트 (OpenAI 호환 엔드포인트)
   - `app/actions.py` — 대사 속 `[액션:*]` 태그 파싱 → 이모티콘 매핑
   - `templates/` — Jinja2. 단톡방 화면
   - `static/emoji/` — 움직이는 이모티콘 에셋 (SVG SMIL / APNG)
 - Dependency direction: `main` → `graph` → `llm`. `actions`는 leaf. 템플릿은 라우터에서만 렌더.
-- External systems: DeepSeek API (`DEEPSEEK_API_KEY`)
+- External systems: Upstage Solar API (`UPSTAGE_API_KEY`)
 - Persistent data: 없음. 세션은 인메모리. 서버 재시작하면 날아간다.
 
 ## Characters
 
-두 캐릭터 모두 DeepSeek 한 모델로 구동한다. 페르소나만 다르다.
+두 캐릭터 모두 Solar 한 모델로 구동한다. 페르소나만 다르다.
 
 | 배역 | 페르소나 | 역할 |
 |---|---|---|
@@ -49,7 +49,7 @@ Agents must verify commands against repository configuration before running them
 - Supported platforms: 최신 데스크톱 브라우저. 데모용이므로 구형 브라우저 미지원.
 - Compatibility requirements: 대사 스트리밍은 SSE + HTMX. WebSocket 도입 금지 (단방향이라 불필요).
 - Performance constraints: 첫 대사가 3초 안에 화면에 떠야 데모가 산다.
-- Security or privacy requirements: `DEEPSEEK_API_KEY`는 환경변수로만. 커밋 금지. 클라이언트로 절대 노출 금지.
+- Security or privacy requirements: `UPSTAGE_API_KEY`는 환경변수로만. 커밋 금지. 클라이언트로 절대 노출 금지.
 
 ## Ownership
 
