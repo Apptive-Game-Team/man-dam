@@ -1,6 +1,11 @@
+import re
+from pathlib import Path
+
 import pytest
 
-from app.actions import EMOJI, split_action
+from app.actions import EMOJI, PROMPT_RULE, split_action
+
+EMOJI_DIR = Path(__file__).resolve().parent.parent / "static" / "emoji"
 
 
 def test_no_tag_passes_through():
@@ -38,12 +43,41 @@ def test_tag_only_line_yields_no_text():
     assert split_action("**[액션:민수]**") == (None, "")
 
 
-def test_every_action_has_an_asset():
-    from pathlib import Path
+def test_mapping_and_assets_match():
+    # 매핑에만 있는 이름은 깨진 이미지가 되고, 파일에만 있는 그림은 영영 안 뜬다.
+    # 어느 쪽이든 눈으로 만담을 돌려봐야 알게 되므로 여기서 잡는다.
+    assert {p.stem for p in EMOJI_DIR.glob("*.svg")} == set(EMOJI.values())
 
-    emoji_dir = Path(__file__).resolve().parent.parent / "static" / "emoji"
-    for name in EMOJI.values():
-        assert (emoji_dir / f"{name}.svg").is_file(), name
+
+@pytest.mark.parametrize("name", sorted(EMOJI.values()))
+def test_asset_stays_self_contained(name):
+    # `<img src>` 하나로 움직여야 한다. 외부 참조가 끼면 무대에서 조용히 멈춘다.
+    svg = (EMOJI_DIR / f"{name}.svg").read_text()
+    assert 'viewBox="0 0 120 120"' in svg
+    assert re.search(r"animation:[^;}]*infinite", svg)
+    for banned in ("<script", "<image", "xlink"):
+        assert banned not in svg, banned
+    assert re.findall(r"https?://\S+", svg) == ['http://www.w3.org/2000/svg"']
+
+
+@pytest.mark.parametrize("name", sorted(EMOJI.values()))
+def test_asset_honors_reduced_motion(name):
+    # SMIL은 CSS 미디어 쿼리를 무시한다. 페이지가 모션을 꺼도 에셋만 계속 움직이므로
+    # 애니메이션은 CSS로만 돌리고, 에셋마다 자기 가드를 들고 있어야 한다.
+    svg = (EMOJI_DIR / f"{name}.svg").read_text()
+    assert "prefers-reduced-motion" in svg
+    for smil in ("<animate", "<animateTransform", "<animateMotion"):
+        assert smil not in svg, smil
+    moving = set(re.findall(r"\.([\w-]+)\s*\{[^}]*animation:\s*(?!none)", svg))
+    guard = svg[svg.index("prefers-reduced-motion") :]
+    stopped = set(re.findall(r"\.([\w-]+)\s*\{[^}]*animation:\s*none", guard))
+    assert moving and not moving - stopped, sorted(moving - stopped)
+
+
+def test_prompt_rule_lists_every_action():
+    # 액션을 늘릴 때 매핑 한 군데만 고치면 되도록, 프롬프트는 EMOJI에서 나온다.
+    for name in EMOJI:
+        assert name in PROMPT_RULE
 
 
 def test_name_prefix_is_stripped():

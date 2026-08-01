@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">팔을 뻗어 검지로 삿대질하는 동작</title>
+  <style>
+    @keyframes pnt-arm-move { 0%, 50%, 100% { transform: translateX(-12px) } 25%, 75% { transform: translateX(10px) } }
+    @keyframes pnt-marks-blink { 0%, 50%, 100% { opacity: .2 } 25%, 75% { opacity: 1 } }
+    .pnt-arm { animation: pnt-arm-move 1s infinite; transform-box: view-box; }
+    .pnt-marks { animation: pnt-marks-blink 1s infinite; opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .pnt-arm { animation: none; }
+      .pnt-marks { animation: none; }
+    }
+  </style>
+  <path d="M5 116 L9 77 Q26 66 46 75 L57 116Z" fill="#f0a84a" stroke="#1f2933" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="28" cy="47" r="27" fill="#2ec4b6" stroke="#1f2933" stroke-width="7"/>
+  <circle cx="20" cy="44" r="4" fill="#1f2933"/><circle cx="37" cy="44" r="4" fill="#1f2933"/>
+  <path d="M18 59 L39 59" stroke="#1f2933" stroke-width="6" stroke-linecap="round"/>
+  <g class="pnt-arm">
+    <path d="M38 83 Q62 67 88 67" fill="none" stroke="#1f2933" stroke-width="20" stroke-linecap="round"/>
+    <path d="M38 83 Q62 67 88 67" fill="none" stroke="#f0a84a" stroke-width="13" stroke-linecap="round"/>
+    <path d="M85 67 L115 67" stroke="#1f2933" stroke-width="12" stroke-linecap="round"/>
+    <path d="M85 67 L115 67" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+    <path d="M90 66 L104 54" stroke="#1f2933" stroke-width="10" stroke-linecap="round"/>
+    <path d="M90 66 L104 54" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <path class="pnt-marks" d="M104 29 L116 21 M108 40 L118 39 M101 19 L105 5" stroke="#1f2933" stroke-width="7" stroke-linecap="round"/>
+</svg>
