@@ -44,3 +44,10 @@ def test_feedback_names_only_the_weak_parts():
 
 def test_nothing_to_say_when_everything_passes():
     assert review.feedback(full(5)) == ""
+
+
+def test_anchor_survives_topic_filtering():
+    # 채점표의 5점 기준점은 대본을 쓰지 않으므로 주제와 무관하게 늘 들어간다.
+    from app.examples import EXAMPLES
+
+    assert EXAMPLES[0]["script"] in review.system_prompt()
