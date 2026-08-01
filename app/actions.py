@@ -8,9 +8,11 @@
 
 import re
 
-# 액션 이름 -> static/emoji/ 파일 이름
+# 액션 이름 -> static/emoji/ 파일 이름.
+# 이름은 배역이 아니라 동작으로 짓는다. "츳코미"였을 때 모델이 이걸 사람 이름과
+# 헷갈려서 `[액션:민수]` 같은 걸 뱉었다.
 EMOJI = {
-    "츳코미": "tsukkomi",
+    "때리기": "tsukkomi",
     "넘어짐": "fall",
     "당황": "panic",
 }
@@ -23,6 +25,10 @@ TAG = re.compile(r"^\s*[\[(]([^\])]*)[\])]\s*")
 TAG_ANYWHERE = re.compile(r"[\[(][^\])]*[\])]")
 # "Claude: ", "GPT: " 같은 이름표. 붙이지 말라고 해도 붙인다.
 SPEAKER = re.compile(r"^\s*[\w가-힣]{1,12}\s*[::]\s*")
+# 마크다운 강조, 구분선, 인용부호. 대사에 섞여 나온다.
+MARKUP = re.compile(r"\*+|`+|_{2,}|-{3,}|#{1,6}\s*|>+")
+# 이름표를 뗀 자리에 콜론이 하나 더 남는 경우가 있다.
+LEADING_COLON = re.compile(r"^\s*[::]\s*")
 
 PROMPT_RULE = """- 리액션이 큰 대사에는 맨 앞에 액션 태그를 붙인다. 형식은 `[액션:이름]` 하나뿐이다.
 - 쓸 수 있는 이름: {names}. 목록에 없는 이름은 쓰지 않는다.
@@ -36,15 +42,20 @@ def first_turn(reply: str) -> str:
     만담 전체가 들어가고 턴 교대가 무너진다.
     """
     for raw in reply.splitlines():
-        line = SPEAKER.sub("", raw.strip())
+        line = LEADING_COLON.sub("", SPEAKER.sub("", raw.strip()))
         if line:
             return line
     return reply.strip()
 
 
 def tidy(text: str) -> str:
-    """남은 태그를 걷어내고 그 자리에 생긴 빈칸을 메운다."""
-    return re.sub(r"\s+", " ", TAG_ANYWHERE.sub("", text)).strip()
+    """남은 태그와 마크다운을 걷어내고 그 자리에 생긴 빈칸을 메운다.
+
+    말풍선은 마크다운을 렌더하지 않는다. `**강조**` 가 그대로 화면에 뜬다.
+    """
+    text = TAG_ANYWHERE.sub("", text)
+    text = MARKUP.sub("", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def split_action(reply: str) -> tuple[str | None, str]:
@@ -56,10 +67,7 @@ def split_action(reply: str) -> tuple[str | None, str]:
     line = first_turn(reply)
     match = TAG.match(line)
     if not match:
-        return None, tidy(line) or line
-    rest = tidy(line[match.end() :])
-    if not rest:
-        # 괄호 덩어리가 대사 전부였다. 떼면 빈 말풍선이 남으니 그냥 대사로 둔다.
-        return None, line
+        return None, tidy(line)
     name = match.group(1).rsplit(":", 1)[-1].strip()
-    return (name if name in EMOJI else None), rest
+    # 대사가 비면 호출한 쪽이 다시 부른다. 태그만 든 말풍선을 띄우지 않는다.
+    return (name if name in EMOJI else None), tidy(line[match.end() :])
