@@ -1,0 +1,14 @@
+.git
+.github
+.agents
+.claude
+AGENTS.md
+CLAUDE.md
+docs
+tests
+README.md
+.env
+.venv
+__pycache__
+.ruff_cache
+.pytest_cache
