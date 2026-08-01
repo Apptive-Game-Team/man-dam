@@ -1,3 +1,5 @@
+import asyncio
+import logging
 import os
 
 import httpx
@@ -5,7 +7,12 @@ import httpx
 # Upstage Solar. OpenAI 호환 엔드포인트라 응답 형태가 같다.
 API_URL = "https://api.upstage.ai/v1/chat/completions"
 MODEL = "solar-pro3"
-TIMEOUT = httpx.Timeout(60.0)
+
+# 추론을 켜고 대본 전체를 쓰므로 한 호출이 길다. 그래도 무한정 기다리진 않는다.
+TIMEOUT = httpx.Timeout(120.0)
+ATTEMPTS = 3
+
+log = logging.getLogger(__name__)
 
 
 def require_api_key() -> str:
@@ -21,24 +28,50 @@ def require_api_key() -> str:
     return key
 
 
-async def complete(system: str, user: str, temperature: float = 1.0) -> str:
-    """대사 한 줄을 받아온다.
+async def complete(
+    system: str,
+    messages: list[dict[str, str]],
+    temperature: float = 1.0,
+    json_mode: bool = False,
+    max_tokens: int | None = None,
+    effort: str | None = None,
+) -> str:
+    """Solar를 한 번 부른다.
 
-    temperature를 1.3까지 올리면 후반 대사가 문장으로 성립하지 않는다. 1.0이
-    엉뚱함과 말이 되는 것 사이의 경계였다.
+    호출 하나가 늘어지면 공연이 통째로 멈춘다. 여기서 다시 걸어보고, 그래도 안
+    되면 그때 포기한다.
     """
+    payload: dict = {
+        "model": MODEL,
+        "temperature": temperature,
+        "messages": [{"role": "system", "content": system}, *messages],
+    }
+    if effort:
+        # solar-pro3는 추론을 끈 채로 온다. 켜야 대본이 대본다워진다.
+        payload["reasoning_effort"] = effort
+    if max_tokens:
+        # 길이는 프롬프트로 안 잡힌다. 40자 넘지 말라고 해도 세 문장을 쓴다.
+        payload["max_tokens"] = max_tokens
+    if json_mode:
+        # 형식을 모델 선의에 맡기지 않는다. 깨진 JSON은 파서로 못 살린다.
+        payload["response_format"] = {"type": "json_object"}
+
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        response = await client.post(
-            API_URL,
-            headers={"Authorization": f"Bearer {require_api_key()}"},
-            json={
-                "model": MODEL,
-                "temperature": temperature,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-            },
-        )
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"].strip()
+        for attempt in range(1, ATTEMPTS + 1):
+            try:
+                response = await client.post(
+                    API_URL,
+                    headers={"Authorization": f"Bearer {require_api_key()}"},
+                    json=payload,
+                )
+                response.raise_for_status()
+                return response.json()["choices"][0]["message"]["content"].strip()
+            except (httpx.TransportError, httpx.HTTPStatusError) as exc:
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                if status is not None and status < 500 and status != 429:
+                    raise  # 키가 틀렸거나 요청이 잘못됐다. 다시 걸어도 같다.
+                if attempt == ATTEMPTS:
+                    raise
+                log.warning("Solar 호출 실패(%s/%s): %s", attempt, ATTEMPTS, exc)
+                await asyncio.sleep(attempt)
+    raise AssertionError("unreachable")

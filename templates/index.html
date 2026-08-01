@@ -155,20 +155,7 @@ h1 {
 
 .line.tsukkomi .who { flex-direction: row-reverse; }
 
-.badge {
-  font-family: "Black Han Sans", sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  background: rgba(246, 234, 214, 0.14);
-  color: var(--cream);
-}
-
-.line.tsukkomi .badge { background: rgba(46, 196, 182, 0.2); color: var(--tsukkomi); }
-
 .line.error { align-self: center; align-items: center; max-width: 100%; }
-.line.error .badge { background: rgba(226, 90, 90, 0.22); color: #ff9d9d; }
 .line.error .bubble {
   background: rgba(226, 90, 90, 0.14);
   color: #ffc9c9;
@@ -210,8 +197,31 @@ h1 {
   font-weight: bold;
 }
 
+.preparing {
+  text-align: center;
+  color: var(--dim);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  padding: 2rem 0;
+}
+
+.preparing span {
+  animation: blink 1.2s steps(1) infinite;
+}
+
+.preparing span:nth-child(2) { animation-delay: 0.4s; }
+.preparing span:nth-child(3) { animation-delay: 0.8s; }
+
+@keyframes blink {
+  0%, 33% { opacity: 0; }
+  34%, 100% { opacity: 1; }
+}
+
+/* 첫 대사가 붙으면 #chat이 더는 비어있지 않다. 그때 알아서 사라진다. */
+#chat:not(:empty) ~ .preparing { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
-  .line, .emoji { animation: none; }
+  .line, .emoji, .preparing span { animation: none; }
 }
 </style>
 </head>
@@ -219,7 +229,7 @@ h1 {
 <main>
   <header>
     <h1>만담</h1>
-    <p class="cast">보케 <b>ChatGPT</b> &nbsp;×&nbsp; 츳코미 <b>Claude</b></p>
+    <p class="cast">오늘의 두 사람이 방금 정해집니다</p>
 
     <form class="topic" method="get" action="/">
       <input name="topic" value="{{ topic }}" aria-label="만담 주제" maxlength="40" required>
@@ -233,6 +243,10 @@ h1 {
        sse-swap="message"
        sse-close="close"
        hx-swap="beforeend"></div>
+
+  <!-- 기획 호출이 끝나야 첫 대사가 나온다. 그동안 무대를 비워두지 않는다.
+       첫 말풍선이 붙는 순간 #chat이 비지 않게 되어 CSS가 알아서 감춘다. -->
+  <p class="preparing" aria-live="polite">무대 뒤에서 대본 짜는 중<span>.</span><span>.</span><span>.</span></p>
 </main>
 
 <script src="https://unpkg.com/htmx.org@2.0.4"></script>
