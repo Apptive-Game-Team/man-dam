@@ -9,7 +9,7 @@ from app.graph import (
     parse_plan,
     persona,
 )
-from app.llm import require_api_key
+from app.llm import SOLAR, require_api_key
 from app.main import render_bubble, render_curtain, render_sticker, sse
 
 PLAN = {
@@ -128,7 +128,7 @@ def test_partial_plan_falls_back_field_by_field():
 def test_missing_api_key_fails_loudly(monkeypatch):
     monkeypatch.delenv("UPSTAGE_API_KEY", raising=False)
     with pytest.raises(RuntimeError, match="UPSTAGE_API_KEY"):
-        require_api_key()
+        require_api_key(SOLAR)
 
 
 def test_bad_names_fall_back():
@@ -136,3 +136,35 @@ def test_bad_names_fall_back():
     for bad in ("철", "Bob", "김철수철수", "", "민 재"):
         assert name_of({"boke": {"name": bad}}, "boke") == FALLBACK_PLAN["boke"]["name"]
     assert name_of({"boke": {"name": "민재"}}, "boke") == "민재"
+
+
+def test_rewrite_stops_at_the_limit():
+    from app.graph import MAX_REWRITES, rewrite_or_go
+
+    assert rewrite_or_go({"feedback": "", "rewrites": 0}) == "stage"
+    assert rewrite_or_go({"feedback": "전제가 흩어짐", "rewrites": 1}) == "write"
+    # 무한정 고쳐 쓰면 관객이 기다린다.
+    assert rewrite_or_go({"feedback": "전제가 흩어짐", "rewrites": MAX_REWRITES}) == "stage"
+
+
+def test_best_draft_reaches_the_stage(tmp_path, monkeypatch):
+    monkeypatch.setenv("MANDAM_DB", str(tmp_path / "t.sqlite3"))
+    import importlib
+
+    from app import archive, graph
+
+    importlib.reload(archive)
+    monkeypatch.setattr(graph, "archive", archive)
+
+    good = [("boke", "만식", None, "좋은 대본")]
+    poor = [("boke", "만식", None, "떨어진 대본")]
+    base = {"topic": "카페 창업", "plan": PLAN, "best_score": 12, "rewrites": 2}
+    assert graph.curtain_up({**base, "best": good, "draft": poor})["lines"] == good
+    # 심사를 한 번도 통과 못 했어도 무대는 비우지 않는다.
+    assert graph.curtain_up({**base, "best": [], "draft": poor})["lines"] == poor
+
+    # 무대에 오른 것은 기록에 남는다.
+    saved = archive.best(limit=5)
+    assert len(saved) == 2
+    assert saved[0]["topic"] == "카페 창업"
+    assert saved[0]["script"][0]["text"] in ("좋은 대본", "떨어진 대본")
