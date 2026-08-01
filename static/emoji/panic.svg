@@ -1,18 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
   <title id="title">두 손을 뺨에 붙이고 부들부들 당황하는 동작</title>
-  <g>
-    <animateTransform attributeName="transform" type="translate" values="-6 0;6 0;-6 0;6 0;-6 0;6 0;-6 0" dur="1s" repeatCount="indefinite"/>
-    <path d="M34 116 L38 77 Q60 66 82 77 L87 116Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
-    <circle cx="60" cy="49" r="28" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
-    <ellipse cx="50" cy="45" rx="7" ry="9" fill="#f6ead6"/><ellipse cx="70" cy="45" rx="7" ry="9" fill="#f6ead6"/>
-    <circle cx="50" cy="47" r="3.5" fill="#17303a"/><circle cx="70" cy="47" r="3.5" fill="#17303a"/>
-    <ellipse cx="60" cy="63" rx="9" ry="13" fill="#17303a"/>
-    <path d="M42 84 Q30 73 39 58 M78 84 Q90 73 81 58" fill="none" stroke="#f0a84a" stroke-width="18" stroke-linecap="round"/>
-    <path d="M42 84 Q30 73 39 58 M78 84 Q90 73 81 58" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
-    <circle cx="39" cy="58" r="9" fill="#f6ead6"/><circle cx="81" cy="58" r="9" fill="#f6ead6"/>
+  <style>
+    @keyframes pnc-body-move { 0%, 33.333%, 66.667%, 100% { transform: translateX(-6px) } 16.667%, 50%, 83.333% { transform: translateX(6px) } }
+    @keyframes pnc-drops-move { 0%, 50%, 100% { transform: translateY(0) } 25%, 75% { transform: translateY(7px) } }
+    .pnc-body { animation: pnc-body-move 1s infinite; transform-box: view-box; }
+    .pnc-drops { animation: pnc-drops-move 1s infinite; transform-box: view-box; }
+    @media (prefers-reduced-motion: reduce) {
+      .pnc-body { animation: none; }
+      .pnc-drops { animation: none; }
+    }
+  </style>
+  <g class="pnc-body">
+    <path d="M34 116 L38 77 Q60 66 82 77 L87 116Z" fill="#f0a84a" stroke="#1f2933" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="60" cy="49" r="28" fill="#2ec4b6" stroke="#1f2933" stroke-width="7"/>
+    <ellipse cx="50" cy="45" rx="7" ry="9" fill="#ffffff" stroke="#1f2933" stroke-width="3"/><ellipse cx="70" cy="45" rx="7" ry="9" fill="#ffffff" stroke="#1f2933" stroke-width="3"/>
+    <circle cx="50" cy="47" r="3.5" fill="#1f2933"/><circle cx="70" cy="47" r="3.5" fill="#1f2933"/>
+    <ellipse cx="60" cy="63" rx="9" ry="13" fill="#1f2933"/>
+    <path d="M42 84 Q30 73 39 58 M78 84 Q90 73 81 58" fill="none" stroke="#1f2933" stroke-width="18" stroke-linecap="round"/>
+    <path d="M42 84 Q30 73 39 58 M78 84 Q90 73 81 58" fill="none" stroke="#f0a84a" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="39" cy="58" r="9" fill="#f0a84a" stroke="#1f2933" stroke-width="3"/><circle cx="81" cy="58" r="9" fill="#f0a84a" stroke="#1f2933" stroke-width="3"/>
   </g>
-  <g fill="#2ec4b6">
+  <g class="pnc-drops" fill="#2ec4b6" stroke="#1f2933" stroke-width="3" stroke-linejoin="round">
     <path d="M14 8 Q1 23 10 35 Q28 32 14 8Z"/><path d="M106 7 Q119 23 110 35 Q92 31 106 7Z"/><path d="M112 48 Q121 61 111 70 Q96 63 112 48Z"/>
-    <animateTransform attributeName="transform" type="translate" values="0 0;0 7;0 0;0 7;0 0" dur="1s" repeatCount="indefinite"/>
   </g>
 </svg>

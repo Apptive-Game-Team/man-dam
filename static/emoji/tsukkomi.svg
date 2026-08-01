@@ -1,30 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
   <title id="title">상대 머리를 찰싹 때리는 츳코미</title>
-  <g>
-    <animateTransform attributeName="transform" type="translate" values="0 0;0 0;9 0;-4 0;0 0" keyTimes="0;.28;.43;.6;1" dur="1s" repeatCount="indefinite"/>
-    <path d="M5 116 L8 79 Q22 66 38 76 L46 116Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
-    <circle cx="25" cy="50" r="22" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
-    <circle cx="18" cy="47" r="3.5" fill="#17303a"/><circle cx="31" cy="47" r="3.5" fill="#17303a"/>
-    <path d="M18 59 Q25 64 32 57" fill="none" stroke="#17303a" stroke-width="6" stroke-linecap="round"/>
+  <style>
+    @keyframes tsk-left-move { 0%, 28%, 100% { transform: translateX(0) } 43% { transform: translateX(9px) } 60% { transform: translateX(-4px) } }
+    @keyframes tsk-right-move { 0%, 39%, 100% { transform: translate(0) } 46% { transform: translate(8px, 3px) } 62% { transform: translate(-5px, 1px) } }
+    @keyframes tsk-arm-swing { 0%, 28%, 100% { transform: rotate(-55deg) } 43% { transform: rotate(48deg) } 58% { transform: rotate(20deg) } }
+    @keyframes tsk-star-hit { 0%, 30% { transform: scale(.6); opacity: 0 } 38% { transform: scale(1.25); opacity: 1 } 70% { transform: scale(1.15); opacity: 1 } 90% { transform: scale(.9); opacity: 1 } 100% { transform: scale(.6); opacity: 0 } }
+    .tsk-left { animation: tsk-left-move 1s infinite; transform-box: view-box; }
+    .tsk-right { animation: tsk-right-move 1s infinite; transform-box: view-box; }
+    .tsk-arm { animation: tsk-arm-swing 1s infinite; transform-box: view-box; transform-origin: 34px 89px; }
+    .tsk-star { animation: tsk-star-hit 1s infinite; transform-box: view-box; transform-origin: 0 0; opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .tsk-left { animation: none; }
+      .tsk-right { animation: none; }
+      .tsk-arm { animation: none; }
+      .tsk-star { animation: none; }
+    }
+  </style>
+  <g class="tsk-left">
+    <path d="M5 116 L8 79 Q22 66 38 76 L46 116Z" fill="#f0a84a" stroke="#1f2933" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="25" cy="50" r="22" fill="#2ec4b6" stroke="#1f2933" stroke-width="7"/>
+    <circle cx="18" cy="47" r="3.5" fill="#1f2933"/><circle cx="31" cy="47" r="3.5" fill="#1f2933"/>
+    <path d="M18 59 Q25 64 32 57" fill="none" stroke="#1f2933" stroke-width="6" stroke-linecap="round"/>
   </g>
-  <g>
-    <animateTransform attributeName="transform" type="translate" values="0 0;0 0;8 3;-5 1;0 0" keyTimes="0;.39;.46;.62;1" dur="1s" repeatCount="indefinite"/>
-    <path d="M75 116 L78 78 Q92 67 108 77 L116 116Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
-    <circle cx="94" cy="49" r="22" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
-    <circle cx="88" cy="48" r="3.5" fill="#17303a"/><circle cx="101" cy="48" r="3.5" fill="#17303a"/>
-    <path d="M87 60 L101 60" stroke="#17303a" stroke-width="6" stroke-linecap="round"/>
+  <g class="tsk-right">
+    <path d="M75 116 L78 78 Q92 67 108 77 L116 116Z" fill="#f0a84a" stroke="#1f2933" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="94" cy="49" r="22" fill="#2ec4b6" stroke="#1f2933" stroke-width="7"/>
+    <circle cx="88" cy="48" r="3.5" fill="#1f2933"/><circle cx="101" cy="48" r="3.5" fill="#1f2933"/>
+    <path d="M87 60 L101 60" stroke="#1f2933" stroke-width="6" stroke-linecap="round"/>
   </g>
-  <g>
-    <animateTransform attributeName="transform" type="rotate" values="-55 34 89;-55 34 89;48 34 89;20 34 89;-55 34 89" keyTimes="0;.28;.43;.58;1" dur="1s" repeatCount="indefinite"/>
-    <path d="M34 91 L58 58" fill="none" stroke="#f0a84a" stroke-width="19" stroke-linecap="round"/>
-    <path d="M34 91 L58 58" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
-    <ellipse cx="64" cy="52" rx="14" ry="10" fill="#f6ead6" stroke="#f0a84a" stroke-width="6"/>
+  <g class="tsk-arm">
+    <path d="M34 91 L58 58" fill="none" stroke="#1f2933" stroke-width="19" stroke-linecap="round"/>
+    <path d="M34 91 L58 58" fill="none" stroke="#f0a84a" stroke-width="12" stroke-linecap="round"/>
+    <ellipse cx="64" cy="52" rx="14" ry="10" fill="#ffffff" stroke="#1f2933" stroke-width="6"/>
   </g>
   <g transform="translate(94 38)">
-    <g fill="#f0a84a" opacity="0">
+    <g class="tsk-star" fill="#f0a84a" stroke="#1f2933" stroke-width="3" stroke-linejoin="round">
       <path d="M0 -25 L7 -11 L23 -18 L17 -2 L29 7 L12 10 L12 27 L0 17 L-14 29 L-15 12 L-31 9 L-17 -2 L-24 -18 L-7 -11Z"/>
-      <animate attributeName="opacity" values="0;0;1;1;.5;0" keyTimes="0;.3;.38;.7;.85;1" dur="1s" repeatCount="indefinite"/>
-      <animateTransform attributeName="transform" type="scale" values=".6;.6;1.25;1.15;.9;.6" keyTimes="0;.3;.38;.7;.85;1" dur="1s" repeatCount="indefinite"/>
     </g>
   </g>
 </svg>

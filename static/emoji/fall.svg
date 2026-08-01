@@ -1,19 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
   <title id="title">대각선으로 자빠지며 다리가 들리는 동작</title>
-  <g fill="#f6ead6" opacity="0" transform="translate(18 97)">
+  <style>
+    @keyframes fall-dust-move { 0%, 25% { transform: translate(18px, 97px) scale(.45); opacity: 0 } 38% { transform: translate(18px, 97px) scale(1.2); opacity: 1 } 70% { transform: translate(18px, 97px) scale(1.45); opacity: .7 } 90% { transform: translate(18px, 97px) scale(1); opacity: .35 } 100% { transform: translate(18px, 97px) scale(.45); opacity: 0 } }
+    @keyframes fall-body-move { 0%, 25%, 100% { transform: rotate(-12deg) } 48% { transform: rotate(-40deg) } 68% { transform: rotate(-34deg) } }
+    .fall-dust { animation: fall-dust-move 1s infinite; transform-box: view-box; transform-origin: 0 0; opacity: 1; }
+    .fall-body { animation: fall-body-move 1s infinite; transform-box: view-box; transform-origin: 31px 87px; }
+    @media (prefers-reduced-motion: reduce) {
+      .fall-dust { animation: none; }
+      .fall-body { animation: none; }
+    }
+  </style>
+  <g class="fall-dust" fill="#ffffff" stroke="#1f2933" stroke-width="4" transform="translate(18 97)">
     <circle cx="0" cy="0" r="15.4"/><circle cx="14" cy="-4" r="12.6"/><circle cx="25" cy="2" r="9.8"/>
-    <animate attributeName="opacity" values="0;0;1;.7;.35;0" keyTimes="0;.25;.38;.7;.9;1" dur="1s" repeatCount="indefinite"/>
-    <animateTransform attributeName="transform" type="scale" additive="sum" values=".45;.45;1.2;1.45;1;.45" keyTimes="0;.25;.38;.7;.9;1" dur="1s" repeatCount="indefinite"/>
   </g>
-  <g>
-    <animateTransform attributeName="transform" type="rotate" values="-12 31 87;-12 31 87;-40 31 87;-34 31 87;-12 31 87" keyTimes="0;.25;.48;.68;1" dur="1s" repeatCount="indefinite"/>
-    <path d="M47 78 Q57 57 70 45 L88 61 Q70 76 56 92Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M76 54 L91 21 M79 57 L108 34" fill="none" stroke="#f0a84a" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M76 54 L91 21 M79 57 L108 34" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="32" cy="87" r="27" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
-    <circle cx="26" cy="82" r="4" fill="#17303a"/><circle cx="39" cy="88" r="4" fill="#17303a"/>
-    <path d="M23 97 Q32 91 42 98" fill="none" stroke="#17303a" stroke-width="6" stroke-linecap="round"/>
-    <path d="M53 76 L12 43" fill="none" stroke="#f0a84a" stroke-width="18" stroke-linecap="round"/>
-    <path d="M53 76 L12 43" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
+  <g class="fall-body">
+    <path d="M47 78 Q57 57 70 45 L88 61 Q70 76 56 92Z" fill="#f0a84a" stroke="#1f2933" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M76 54 L91 21 M79 57 L108 34" fill="none" stroke="#1f2933" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M76 54 L91 21 M79 57 L108 34" fill="none" stroke="#f0a84a" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="32" cy="87" r="27" fill="#2ec4b6" stroke="#1f2933" stroke-width="7"/>
+    <circle cx="26" cy="82" r="4" fill="#1f2933"/><circle cx="39" cy="88" r="4" fill="#1f2933"/>
+    <path d="M23 97 Q32 91 42 98" fill="none" stroke="#1f2933" stroke-width="6" stroke-linecap="round"/>
+    <path d="M53 76 L12 43" fill="none" stroke="#1f2933" stroke-width="18" stroke-linecap="round"/>
+    <path d="M53 76 L12 43" fill="none" stroke="#f0a84a" stroke-width="11" stroke-linecap="round"/>
   </g>
 </svg>
