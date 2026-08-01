@@ -5,8 +5,10 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from app.actions import EMOJI
 from app.graph import BOKE, perform, random_topic
 from app.llm import require_api_key
 
@@ -22,6 +24,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="man-dam", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 
 def sse(payload: str, event: str | None = None) -> str:
@@ -35,10 +38,14 @@ def sse(payload: str, event: str | None = None) -> str:
     return f"{head}{body}\n"
 
 
-def render_bubble(speaker: str, text: str, role: str | None = None) -> str:
+def render_bubble(
+    speaker: str, text: str, role: str | None = None, action: str | None = None
+) -> str:
     if role is None:
         role = "boke" if speaker == BOKE else "tsukkomi"
-    return templates.get_template("bubble.html").render(speaker=speaker, text=text, role=role)
+    return templates.get_template("bubble.html").render(
+        speaker=speaker, text=text, role=role, emoji=EMOJI.get(action or "")
+    )
 
 
 @app.get("/")
@@ -52,8 +59,8 @@ async def stream(topic: str | None = None) -> StreamingResponse:
 
     async def lines() -> AsyncIterator[str]:
         try:
-            async for speaker, text in perform(subject):
-                yield sse(render_bubble(speaker, text))
+            async for speaker, action, text in perform(subject):
+                yield sse(render_bubble(speaker, text, action=action))
         except Exception:
             # 무대가 멈춘 채로 방치되면 뭐가 잘못됐는지 화면에서 알 수 없다.
             log.exception("만담 생성 실패")

@@ -7,6 +7,7 @@ from typing import Annotated, TypedDict
 
 from langgraph.graph import END, StateGraph
 
+from app.actions import PROMPT_RULE, split_action
 from app.llm import complete
 
 BOKE = "ChatGPT"
@@ -24,13 +25,14 @@ TOPICS = [
     "회사 워크숍",
 ]
 
-COMMON = """너는 한국어 만담(漫才) 대본을 쓴다. 보케와 츳코미 두 사람이 주고받는 2인 콩트다.
+COMMON = f"""너는 한국어 만담(漫才) 대본을 쓴다. 보케와 츳코미 두 사람이 주고받는 2인 콩트다.
 
 규칙:
 - 대사 한 줄만 출력한다. 이름표, 따옴표, 지문, 설명을 붙이지 않는다.
 - 한 문장, 40자 이내. 구어체 반말. 길어지면 만담이 아니라 연설이 된다.
 - 앞사람 대사를 받아친다. 새 화제를 혼자 꺼내지 않는다.
-- 실제로 웃긴 걸 노린다. 설명하지 말고 치고 빠진다."""
+- 실제로 웃긴 걸 노린다. 설명하지 말고 치고 빠진다.
+{PROMPT_RULE}"""
 
 BOKE_SYSTEM = f"""{COMMON}
 
@@ -47,22 +49,28 @@ TSUKKOMI_SYSTEM = f"""{COMMON}
 
 class State(TypedDict):
     topic: str
-    lines: Annotated[list[tuple[str, str]], operator.add]
+    # (화자, 액션 이름 또는 None, 대사)
+    lines: Annotated[list[tuple[str, str | None, str]], operator.add]
 
 
 def transcript(state: State) -> str:
     if not state["lines"]:
         return f"주제: {state['topic']}\n\n첫 대사를 쳐라."
-    body = "\n".join(f"{speaker}: {text}" for speaker, text in state["lines"])
+    body = "\n".join(f"{speaker}: {text}" for speaker, _, text in state["lines"])
     return f"주제: {state['topic']}\n\n지금까지의 만담:\n{body}\n\n다음 대사를 쳐라."
 
 
+async def say(speaker: str, system: str, state: State) -> dict:
+    action, text = split_action(await complete(system, transcript(state)))
+    return {"lines": [(speaker, action, text)]}
+
+
 async def boke(state: State) -> dict:
-    return {"lines": [(BOKE, await complete(BOKE_SYSTEM, transcript(state)))]}
+    return await say(BOKE, BOKE_SYSTEM, state)
 
 
 async def tsukkomi(state: State) -> dict:
-    return {"lines": [(TSUKKOMI, await complete(TSUKKOMI_SYSTEM, transcript(state)))]}
+    return await say(TSUKKOMI, TSUKKOMI_SYSTEM, state)
 
 
 def keep_going(state: State) -> str:
@@ -82,7 +90,7 @@ def build():
 GRAPH = build()
 
 
-async def perform(topic: str) -> AsyncIterator[tuple[str, str]]:
+async def perform(topic: str) -> AsyncIterator[tuple[str, str | None, str]]:
     """대사가 생성되는 대로 하나씩 흘려보낸다."""
     async for chunk in GRAPH.astream({"topic": topic, "lines": []}):
         for update in chunk.values():

@@ -176,6 +176,24 @@ h1 {
   font-size: 0.95rem;
 }
 
+.say {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.line.tsukkomi .say { flex-direction: row-reverse; }
+
+.emoji {
+  flex: none;
+  animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.6) both;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+  to   { opacity: 1; transform: none; }
+}
+
 .bubble {
   margin: 0;
   padding: 0.85rem 1.15rem;
@@ -200,7 +218,7 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .line { animation: none; }
+  .line, .emoji { animation: none; }
 }
 </style>
 </head>
