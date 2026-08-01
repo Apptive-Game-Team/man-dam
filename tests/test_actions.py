@@ -1,6 +1,11 @@
+import re
+from pathlib import Path
+
 import pytest
 
-from app.actions import EMOJI, split_action
+from app.actions import EMOJI, PROMPT_RULE, split_action
+
+EMOJI_DIR = Path(__file__).resolve().parent.parent / "static" / "emoji"
 
 
 def test_no_tag_passes_through():
@@ -38,12 +43,27 @@ def test_tag_only_line_yields_no_text():
     assert split_action("**[액션:민수]**") == (None, "")
 
 
-def test_every_action_has_an_asset():
-    from pathlib import Path
+def test_mapping_and_assets_match():
+    # 매핑에만 있는 이름은 깨진 이미지가 되고, 파일에만 있는 그림은 영영 안 뜬다.
+    # 어느 쪽이든 눈으로 만담을 돌려봐야 알게 되므로 여기서 잡는다.
+    assert {p.stem for p in EMOJI_DIR.glob("*.svg")} == set(EMOJI.values())
 
-    emoji_dir = Path(__file__).resolve().parent.parent / "static" / "emoji"
-    for name in EMOJI.values():
-        assert (emoji_dir / f"{name}.svg").is_file(), name
+
+@pytest.mark.parametrize("name", sorted(EMOJI.values()))
+def test_asset_stays_self_contained(name):
+    # `<img src>` 하나로 움직여야 한다. 외부 참조가 끼면 무대에서 조용히 멈춘다.
+    svg = (EMOJI_DIR / f"{name}.svg").read_text()
+    assert 'viewBox="0 0 120 120"' in svg
+    assert 'repeatCount="indefinite"' in svg
+    for banned in ("<script", "<image", "xlink"):
+        assert banned not in svg, banned
+    assert re.findall(r"https?://\S+", svg) == ['http://www.w3.org/2000/svg"']
+
+
+def test_prompt_rule_lists_every_action():
+    # 액션을 늘릴 때 매핑 한 군데만 고치면 되도록, 프롬프트는 EMOJI에서 나온다.
+    for name in EMOJI:
+        assert name in PROMPT_RULE
 
 
 def test_name_prefix_is_stripped():
