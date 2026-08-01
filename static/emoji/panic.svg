@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">땀을 흘리며 크게 떠는 캐릭터</title>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="-9 0;9 -3;-9 3;9 0;-9 0" dur=".55s" repeatCount="indefinite"/>
+    <path d="M28 72 Q59 58 90 73 L103 116 H16 Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="8" stroke-linejoin="round"/>
+    <circle cx="59" cy="38" r="34" fill="#2ec4b6" stroke="#f6ead6" stroke-width="8"/>
+    <path d="M28 86 L7 103 M90 86 L112 103" fill="none" stroke="#f6ead6" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <g fill="#f6ead6">
+    <path d="M94 2 C116 27 116 42 101 47 C84 43 84 27 94 2 Z">
+      <animateTransform attributeName="transform" type="translate" values="0 14;10 -12;0 14" dur=".55s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0" dur=".55s" repeatCount="indefinite"/>
+    </path>
+    <path d="M17 15 C1 35 1 48 13 52 C27 48 27 35 17 15 Z">
+      <animateTransform attributeName="transform" type="translate" values="0 12;-9 -10;0 12" begin="-.18s" dur=".55s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0" begin="-.18s" dur=".55s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <g fill="none" stroke="#f0a84a" stroke-width="9" stroke-linecap="round">
+    <path d="M8 61 L0 53 M110 61 L120 52 M8 78 L0 82 M111 79 L120 84"/>
+    <animate attributeName="opacity" values="1;.15;1;.15;1" dur=".55s" repeatCount="indefinite"/>
+  </g>
+</svg>

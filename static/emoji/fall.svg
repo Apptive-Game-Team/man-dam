@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">뒤로 벌러덩 넘어지는 캐릭터</title>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" values="0 35 100;0 35 100;60 35 100;60 35 100;0 35 100" keyTimes="0;.18;.48;.78;1" dur="1.3s" repeatCount="indefinite"/>
+    <path d="M35 68 Q54 59 73 70 L83 108 H27 Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="8" stroke-linejoin="round"/>
+    <circle cx="55" cy="36" r="29" fill="#2ec4b6" stroke="#f6ead6" stroke-width="8"/>
+    <path d="M31 83 L11 69 M74 83 L98 68" fill="none" stroke="#f6ead6" stroke-width="11" stroke-linecap="round"/>
+    <path d="M39 105 L25 118 M68 105 L82 118" fill="none" stroke="#f6ead6" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <g fill="#f6ead6" opacity="0">
+    <path d="M7 101 Q16 83 27 101 Q35 78 45 103 Q52 88 61 106 Q68 85 78 103 Q88 78 96 101 Q107 83 116 102 L116 117 H7 Z"/>
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.4;.5;.72;1" dur="1.3s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate" values="0 18;0 18;0 0;0 -12;0 18" keyTimes="0;.4;.5;.72;1" dur="1.3s" repeatCount="indefinite"/>
+  </g>
+  <path d="M2 114 Q60 103 118 114" fill="none" stroke="#2ec4b6" stroke-width="9" stroke-linecap="round"/>
+</svg>
