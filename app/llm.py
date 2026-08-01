@@ -5,6 +5,10 @@ Solar는 짧은 프롬프트에 구조화된 JSON을 뱉는 일을 잘한다. �
 기획과 리뷰를 맡는다. 둘 다 지시가 짧다.
 
 집필은 예시 대본이 통째로 들어간 긴 프롬프트를 버텨야 해서 DeepSeek이 맡는다.
+
+호출은 LangSmith에 남긴다. langchain 클라이언트가 아니라 httpx로 직접 부르므로
+그래프 노드만으로는 안 잡히고, 이 함수에 `@traceable` 을 걸어야 입력과 출력이
+보인다. `LANGSMITH_TRACING` 이 꺼져 있으면 데코레이터는 아무 일도 하지 않는다.
 """
 
 import asyncio
@@ -13,6 +17,7 @@ import os
 from dataclasses import dataclass
 
 import httpx
+from langsmith import traceable
 
 TIMEOUT = httpx.Timeout(120.0)
 ATTEMPTS = 3
@@ -63,6 +68,7 @@ def require_all_keys() -> None:
         require_api_key(provider)
 
 
+@traceable(run_type="llm", name="chat")
 async def complete(
     provider: Provider,
     system: str,
