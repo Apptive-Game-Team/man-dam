@@ -1,34 +1,70 @@
+"""두 모델을 쓴다. 각자 잘하는 자리에 놓는다.
+
+Solar는 짧은 프롬프트에 구조화된 JSON을 뱉는 일을 잘한다. 대신 프롬프트가
+2KB를 넘고 추론까지 켜면 180초를 넘겨 응답이 오지 않는 것을 확인했다. 그래서
+기획과 리뷰를 맡는다. 둘 다 지시가 짧다.
+
+집필은 예시 대본이 통째로 들어간 긴 프롬프트를 버텨야 해서 DeepSeek이 맡는다.
+"""
+
 import asyncio
 import logging
 import os
+from dataclasses import dataclass
 
 import httpx
 
-# Upstage Solar. OpenAI 호환 엔드포인트라 응답 형태가 같다.
-API_URL = "https://api.upstage.ai/v1/chat/completions"
-MODEL = "solar-pro3"
-
-# 추론을 켜고 대본 전체를 쓰므로 한 호출이 길다. 그래도 무한정 기다리진 않는다.
 TIMEOUT = httpx.Timeout(120.0)
 ATTEMPTS = 3
 
 log = logging.getLogger(__name__)
 
 
-def require_api_key() -> str:
-    """키를 읽고, 없으면 즉시 실패한다.
+@dataclass(frozen=True)
+class Provider:
+    name: str
+    url: str
+    model: str
+    env: str
+    reasoning: bool = False
 
-    서버 기동 시점에 불러서 첫 만담 도중이 아니라 시작할 때 터지게 한다.
-    """
-    key = os.environ.get("UPSTAGE_API_KEY")
+
+SOLAR = Provider(
+    name="Upstage Solar",
+    url="https://api.upstage.ai/v1/chat/completions",
+    model="solar-pro3",
+    env="UPSTAGE_API_KEY",
+    reasoning=True,
+)
+
+DEEPSEEK = Provider(
+    name="DeepSeek",
+    url="https://api.deepseek.com/chat/completions",
+    model="deepseek-chat",
+    env="DEEPSEEK_API_KEY",
+)
+
+PROVIDERS = (SOLAR, DEEPSEEK)
+
+
+def require_api_key(provider: Provider) -> str:
+    key = os.environ.get(provider.env)
     if not key:
         raise RuntimeError(
-            "UPSTAGE_API_KEY가 없다. .env에 넣고 `uv run uvicorn app.main:app --env-file .env` 로 실행한다."
+            f"{provider.env}가 없다({provider.name}). .env에 넣고 "
+            "`uv run uvicorn app.main:app --env-file .env` 로 실행한다."
         )
     return key
 
 
+def require_all_keys() -> None:
+    """기동 시점에 전부 확인한다. 만담 중간에 한쪽만 없는 걸 알게 되면 늦다."""
+    for provider in PROVIDERS:
+        require_api_key(provider)
+
+
 async def complete(
+    provider: Provider,
     system: str,
     messages: list[dict[str, str]],
     temperature: float = 1.0,
@@ -36,21 +72,15 @@ async def complete(
     max_tokens: int | None = None,
     effort: str | None = None,
 ) -> str:
-    """Solar를 한 번 부른다.
-
-    호출 하나가 늘어지면 공연이 통째로 멈춘다. 여기서 다시 걸어보고, 그래도 안
-    되면 그때 포기한다.
-    """
+    """한 번 부른다. 늘어지거나 5xx면 다시 걸고, 그래도 안 되면 포기한다."""
     payload: dict = {
-        "model": MODEL,
+        "model": provider.model,
         "temperature": temperature,
         "messages": [{"role": "system", "content": system}, *messages],
     }
-    if effort:
-        # solar-pro3는 추론을 끈 채로 온다. 켜야 대본이 대본다워진다.
+    if effort and provider.reasoning:
         payload["reasoning_effort"] = effort
     if max_tokens:
-        # 길이는 프롬프트로 안 잡힌다. 40자 넘지 말라고 해도 세 문장을 쓴다.
         payload["max_tokens"] = max_tokens
     if json_mode:
         # 형식을 모델 선의에 맡기지 않는다. 깨진 JSON은 파서로 못 살린다.
@@ -60,8 +90,8 @@ async def complete(
         for attempt in range(1, ATTEMPTS + 1):
             try:
                 response = await client.post(
-                    API_URL,
-                    headers={"Authorization": f"Bearer {require_api_key()}"},
+                    provider.url,
+                    headers={"Authorization": f"Bearer {require_api_key(provider)}"},
                     json=payload,
                 )
                 response.raise_for_status()
@@ -72,6 +102,6 @@ async def complete(
                     raise  # 키가 틀렸거나 요청이 잘못됐다. 다시 걸어도 같다.
                 if attempt == ATTEMPTS:
                     raise
-                log.warning("Solar 호출 실패(%s/%s): %s", attempt, ATTEMPTS, exc)
+                log.warning("%s 호출 실패(%s/%s): %s", provider.name, attempt, ATTEMPTS, exc)
                 await asyncio.sleep(attempt)
     raise AssertionError("unreachable")

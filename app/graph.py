@@ -1,4 +1,10 @@
-"""만담 그래프. 기획 한 번, 대본 한 번. 그게 전부다."""
+"""만담 그래프.
+
+기획 -> 집필 -> 심사, 떨어지면 다시 쓴다. 심사가 통과시키거나 재작성 횟수를
+다 쓰면 그중 제일 점수 높은 대본이 무대에 오른다.
+
+기획과 심사는 Solar가, 집필은 DeepSeek이 맡는다. 이유는 app/llm.py에 적었다.
+"""
 
 import json
 import logging
@@ -10,8 +16,12 @@ from typing import Annotated, Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
+from app import archive, review
 from app.actions import EMOJI, PROMPT_RULE, split_action
-from app.llm import complete
+from app.examples import as_prompt
+from app.llm import DEEPSEEK, SOLAR, complete
+
+EXAMPLE_BLOCK = as_prompt()
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +30,8 @@ MAX_LINES = 12
 # 이만큼도 못 건지면 무대에 올릴 게 없다.
 MIN_LINES = 8
 SCRIPT_ATTEMPTS = 2
+# 채점에서 떨어지면 다시 쓴다. 무한정 고쳐 쓰면 관객이 기다린다.
+MAX_REWRITES = 2
 
 TOPICS = [
     "카페 창업",
@@ -56,8 +68,13 @@ JSON 하나만 출력한다. 설명, 머리말, 코드 펜스를 붙이지 않�
 내용 규칙:
 - 모든 값은 40자 이내 한 줄이다. 괄호로 부연하지 마라.
 - quirk와 style은 3인칭으로 쓴다. "나는" 이 아니라 "이 사람은" 이다.
-- beats는 같은 전제가 점점 커지는 순서다. 새 화제를 나열하지 마라.
-- punchline은 앞의 전개가 있어야 웃긴 것이어야 한다."""
+- quirk는 전제 하나다. 여러 개를 나열하지 마라. 이 전제가 대본 끝까지 간다.
+- beats는 그 전제 하나가 점점 커지는 계단이다. 새 소재를 나열하면 잡담이 된다.
+- punchline은 그 전제를 뒤집는다. 앞의 전개를 안 보고도 웃기면 잘못 쓴 것이다.
+
+예: 전제가 "회원권이 대신 운동한다"면
+beats는 [회원권이 탄탄해진다, 무거워서 못 꺼낸다, 오늘은 쉬라고 말한다]이고
+punchline은 "운동한 건 회원권이 아니라 자랑한 입이다"이다."""
 
 FALLBACK_PLAN: dict[str, Any] = {
     "boke": {"name": "만식", "quirk": "엉뚱한 전제를 진지하게 밀어붙인다"},
@@ -88,21 +105,37 @@ JSON 하나만 출력한다.
 대사 규칙:
 - 한 문장, 40자 이내. 구어체 반말. 길어지면 만담이 아니라 연설이 된다.
 - 앞 대사를 그대로 되풀이하지 마라. 같은 말을 두 사람이 하면 만담이 죽는다.
-  받되, 거기에 없던 걸 하나 얹거나 뒤집어라.
 - 보케는 엉뚱한 전제를 진지하게 밀어붙이고, 츳코미는 틀린 지점을 잡아 친다.
   츳코미가 맞장구를 치면 만담이 아니다.
-- 기획의 전개 순서를 따라 판을 키우고, 마지막 줄은 기획의 오치로 확실히 끊는다.
-{PROMPT_RULE}"""
+- 츳코미가 매번 같은 문형으로 치면 안 된다. 되묻기, 정정, 반문, 급소 찌르기를 섞는다.
+
+이 셋이 전부다:
+1. 전제는 하나다. 줄마다 새 소재를 꺼내면 만담이 아니라 잡담이다.
+2. 매 줄이 앞줄보다 한 칸 크다. 같은 전제를 계단처럼 올린다.
+3. 마지막 줄은 그 전제를 뒤집는다. 그냥 멈추지 마라.
+{PROMPT_RULE}
+
+아래는 잘된 만담이다. 이 밀도와 리듬을 따라라. 내용을 베끼지는 마라.
+
+{EXAMPLE_BLOCK}"""
 
 JSON_BLOCK = re.compile(r"\{.*\}", re.DOTALL)
 NAME = re.compile(r"^[가-힣]{2,3}$")
 
 
+Line = tuple[str, str, str | None, str]  # (배역, 이름, 액션 이름 또는 None, 대사)
+
+
 class State(TypedDict):
     topic: str
     plan: dict[str, Any]
-    # (배역, 이름, 액션 이름 또는 None, 대사)
-    lines: Annotated[list[tuple[str, str, str | None, str]], operator.add]
+    draft: list[Line]  # 심사 중인 대본
+    best: list[Line]  # 지금까지 중 제일 점수가 높았던 대본
+    best_score: int
+    best_verdict: dict[str, Any]  # 그 대본이 받은 채점표
+    feedback: str  # 직전 심사에서 받은 지적
+    rewrites: int
+    lines: Annotated[list[Line], operator.add]  # 무대에 올라간 것
 
 
 def parse_plan(reply: str) -> dict[str, Any]:
@@ -187,7 +220,7 @@ def clean_script(raw: Any, plan: dict[str, Any]) -> list[tuple[str, str, str | N
 async def make_plan(state: State) -> dict:
     try:
         brief = [{"role": "user", "content": f"주제: {state['topic']}"}]
-        reply = await complete(PLAN_SYSTEM, brief, json_mode=True)
+        reply = await complete(SOLAR, PLAN_SYSTEM, brief, json_mode=True)
         return {"plan": parse_plan(reply)}
     except Exception:
         # 기획이 없어도 만담은 시작되어야 한다. 무대를 비우는 것보다 낫다.
@@ -199,27 +232,104 @@ async def write(state: State) -> dict:
     """대본 전체를 한 번에 받는다.
 
     한 줄씩 이어 부르면 모델이 앞 대사를 복창하고 오치가 맺히지 않는다. 전체를
-    보고 쓰게 하면 판이 커지고 끝이 닫힌다. 호출도 12번에서 1번으로 준다.
+    보고 쓰게 하면 판이 커지고 끝이 닫힌다.
     """
     plan = state["plan"]
-    for attempt in range(1, SCRIPT_ATTEMPTS + 1):
-        reply = await complete(
-            SCRIPT_SYSTEM, brief_for(state), temperature=0.9, json_mode=True, effort="medium"
+    messages = brief_for(state)
+    if note := state.get("feedback"):
+        messages.append(
+            {
+                "role": "user",
+                "content": (
+                    f"방금 쓴 대본이 심사에서 떨어졌다. 아래를 고쳐서 처음부터 다시 써라.\n\n{note}"
+                ),
+            }
         )
+    for attempt in range(1, SCRIPT_ATTEMPTS + 1):
+        reply = await complete(DEEPSEEK, SCRIPT_SYSTEM, messages, temperature=0.9, json_mode=True)
         lines = clean_script(parse_plan(reply).get("lines"), plan)
         if len(lines) >= MIN_LINES:
-            return {"lines": lines}
+            return {"draft": lines, "rewrites": state.get("rewrites", 0) + 1}
         log.warning("대본이 %s줄뿐이다(%s/%s), 다시 쓴다", len(lines), attempt, SCRIPT_ATTEMPTS)
     raise RuntimeError("쓸 만한 대본을 받지 못했다")
+
+
+def as_text(lines: list[Line]) -> str:
+    return "\n".join(
+        f"{'보케' if role == 'boke' else '츳코미'}: {text}" for role, _, _, text in lines
+    )
+
+
+async def judge(state: State) -> dict:
+    """채점표로 대본을 심사한다.
+
+    떨어뜨리는 게 목적이 아니라 무엇이 부족한지 집필에 돌려주는 게 목적이다.
+    심사가 실패하면 통과시킨다. 심사 때문에 공연이 멈추면 본말전도다.
+    """
+    draft = state["draft"]
+    best_score = state.get("best_score", -1)
+    try:
+        reply = await complete(
+            SOLAR,
+            review.system_prompt(),
+            [{"role": "user", "content": as_text(draft)}],
+            temperature=0.2,
+            json_mode=True,
+        )
+        verdict = parse_plan(reply)
+    except Exception:
+        log.exception("심사 실패, 이 대본으로 간다")
+        return {"best": draft, "best_score": 99, "best_verdict": {}, "feedback": ""}
+
+    score = review.total(verdict)
+    log.info("심사 %s점 %s", score, review.scores_of(verdict))
+    keep = score > best_score
+    return {
+        "best": draft if keep else state.get("best", draft),
+        "best_score": max(score, best_score),
+        "best_verdict": verdict if keep else state.get("best_verdict", verdict),
+        "feedback": "" if review.passed(verdict) else review.feedback(verdict),
+    }
+
+
+def curtain_up(state: State) -> dict:
+    """제일 나은 대본을 무대에 올린다.
+
+    심사를 끝내 통과하지 못해도 무대는 비우지 않는다. 여러 번 쓴 것 중 점수가
+    제일 높았던 것을 올린다.
+    """
+    lines = state.get("best") or state["draft"]
+    archive.save(
+        topic=state["topic"],
+        plan=state["plan"],
+        lines=lines,
+        verdict=state.get("best_verdict"),
+        score=state.get("best_score", 0),
+        rewrites=state.get("rewrites", 0),
+    )
+    return {"lines": lines}
+
+
+def rewrite_or_go(state: State) -> str:
+    if not state.get("feedback"):
+        return "stage"  # 통과했다
+    if state.get("rewrites", 0) >= MAX_REWRITES:
+        log.info("재작성 %s회 소진, 제일 나은 대본으로 간다", MAX_REWRITES)
+        return "stage"
+    return "write"
 
 
 def build():
     graph = StateGraph(State)
     graph.add_node("plan", make_plan)
     graph.add_node("write", write)
+    graph.add_node("judge", judge)
+    graph.add_node("stage", curtain_up)
     graph.set_entry_point("plan")
     graph.add_edge("plan", "write")
-    graph.add_edge("write", END)
+    graph.add_edge("write", "judge")
+    graph.add_conditional_edges("judge", rewrite_or_go, {"write": "write", "stage": "stage"})
+    graph.add_edge("stage", END)
     return graph.compile()
 
 
@@ -228,7 +338,18 @@ GRAPH = build()
 
 async def perform(topic: str) -> AsyncIterator[tuple[str, str, str | None, str]]:
     """완성된 대본을 한 줄씩 내보낸다. 기획 결과는 내보내지 않는다."""
-    async for chunk in GRAPH.astream({"topic": topic, "plan": FALLBACK_PLAN, "lines": []}):
+    start: State = {
+        "topic": topic,
+        "plan": FALLBACK_PLAN,
+        "draft": [],
+        "best": [],
+        "best_score": -1,
+        "best_verdict": {},
+        "feedback": "",
+        "rewrites": 0,
+        "lines": [],
+    }
+    async for chunk in GRAPH.astream(start):
         for update in chunk.values():
             for line in update.get("lines") or []:
                 yield line
