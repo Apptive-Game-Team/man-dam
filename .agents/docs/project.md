@@ -19,7 +19,7 @@ Agents must verify commands against repository configuration before running them
   - `templates/` — Jinja2. 단톡방 화면
   - `static/emoji/` — 움직이는 이모티콘 에셋 (SVG SMIL / APNG)
 - Dependency direction: `main` → `graph` → `llm`. `actions`는 leaf. 템플릿은 라우터에서만 렌더.
-- External systems: Upstage Solar API (`UPSTAGE_API_KEY`)
+- External systems: Upstage Solar API (`UPSTAGE_API_KEY`), DeepSeek API (`DEEPSEEK_API_KEY`), LangSmith (선택, `LANGSMITH_API_KEY`)
 - Persistent data: 없음. 세션은 인메모리. 서버 재시작하면 날아간다.
 
 ## Characters

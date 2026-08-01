@@ -38,6 +38,22 @@ http://localhost:8000 — 주제를 바꾸려면 상단 입력칸에 넣고 "이
 
 키가 없으면 서버가 기동 시점에 실패한다. 첫 만담 도중에 터지는 것보다 낫다.
 
+### 실행 추적 (선택)
+
+어느 단계에서 시간이 가고 어디서 무너지는지 보려면 [LangSmith](https://smith.langchain.com) 를 켠다.
+
+```bash
+cat >> .env <<'ENV'
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=lsv2_...
+LANGSMITH_PROJECT=man-dam
+ENV
+```
+
+기획, 집필, 심사, 재작성 판정이 노드별로 남고 Solar/DeepSeek 호출이 그 아래 붙는다. 키가 없으면 추적만 꺼지고 앱은 그대로 돈다.
+
+대사 원문이 LangSmith로 나간다. 개인정보는 없지만 알고 켜라.
+
 ### 컨테이너로 실행
 
 `main` 에 푸시될 때마다 이미지가 GHCR에 올라간다.
@@ -58,6 +74,7 @@ docker run --rm -p 8000:8000 -e UPSTAGE_API_KEY=sk-... ghcr.io/apptive-game-team
 | LangGraph | 턴 교대와 종료 판정이 그래프로 그대로 표현된다 |
 | SVG/APNG 이모티콘 | 런타임 애니메이션 라이브러리 없이 `<img>` 하나로 끝 |
 | GHCR + Actions | 이미지 하나로 어디서든 같은 결과. 인증은 워크플로 기본 토큰으로 끝난다 |
+| LangSmith | 노드가 다섯이라 로그로는 어디서 무너지는지 못 본다. 선택 사항이라 없어도 돈다 |
 
 ## 상태
 
