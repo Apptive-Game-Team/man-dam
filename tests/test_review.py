@@ -9,7 +9,8 @@ def test_all_criteria_reach_the_prompt():
     prompt = review.system_prompt()
     for key, desc in review.CRITERIA.items():
         assert key in prompt
-        assert desc.split(".")[0] in prompt
+        assert desc["question"] in prompt
+        assert desc[3] in prompt  # 중간 기준이 빠지면 점수가 최하로 눌린다
 
 
 def test_passing_needs_every_criterion():
