@@ -37,16 +37,21 @@ def test_transcript_first_line_has_no_history():
 
 def test_transcript_carries_history():
     text = transcript(
-        {"topic": "카페 창업", "lines": [(BOKE, "카페 차렸어"), (TSUKKOMI, "뭔 소리야")]}
+        {
+            "topic": "카페 창업",
+            "lines": [(BOKE, None, "카페 차렸어"), (TSUKKOMI, "츳코미", "뭔 소리야")],
+        }
     )
     assert "ChatGPT: 카페 차렸어" in text
     assert "Claude: 뭔 소리야" in text
+    # 액션 이름은 다음 턴 컨텍스트에 끼어들지 않는다.
+    assert "츳코미: " not in text
 
 
 def test_graph_stops_at_limit():
     # 상한이 없으면 그래프가 영원히 돈다.
-    assert keep_going({"topic": "x", "lines": [(BOKE, "a")] * MAX_LINES}) == "__end__"
-    assert keep_going({"topic": "x", "lines": [(BOKE, "a")]}) == "boke"
+    assert keep_going({"topic": "x", "lines": [(BOKE, None, "a")] * MAX_LINES}) == "__end__"
+    assert keep_going({"topic": "x", "lines": [(BOKE, None, "a")]}) == "boke"
 
 
 def test_missing_api_key_fails_loudly(monkeypatch):
