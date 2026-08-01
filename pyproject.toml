@@ -1,0 +1,22 @@
+[project]
+name = "man-dam"
+version = "0.1.0"
+description = "AI 캐릭터끼리 만담을 주고받는 웹 앱"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "jinja2>=3.1",
+    "uvicorn[standard]>=0.34",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.9",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
