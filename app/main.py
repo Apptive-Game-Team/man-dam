@@ -55,6 +55,11 @@ def render_sticker(role: str, action: str) -> str:
     )
 
 
+def render_curtain() -> str:
+    """막이 내렸다는 표시. 스트림이 조용히 끊긴 것과 만담이 끝난 것은 다르다."""
+    return templates.get_template("curtain.html").render()
+
+
 @app.get("/")
 async def index(request: Request, topic: str | None = None):
     return templates.TemplateResponse(request, "index.html", {"topic": topic or random_topic()})
@@ -82,6 +87,9 @@ async def stream(topic: str | None = None) -> StreamingResponse:
             # 무대가 멈춘 채로 방치되면 뭐가 잘못됐는지 화면에서 알 수 없다.
             log.exception("만담 생성 실패")
             yield sse(render_bubble("error", "무대", "대사를 받아오지 못했다. 서버 로그를 봐라."))
+        # 사고로 끝났든 대본을 다 읽었든 무대는 끝났다. 막을 내려야 화면이
+        # 다음 대사를 기다리는 상태로 남지 않는다.
+        yield sse(render_curtain())
         # 이게 없으면 EventSource가 재연결해서 만담을 처음부터 다시 시작한다.
         yield sse("", event="close")
 
