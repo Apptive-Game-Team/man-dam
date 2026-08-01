@@ -2,7 +2,7 @@ import pytest
 
 from app.graph import BOKE, MAX_LINES, TSUKKOMI, keep_going, transcript
 from app.llm import require_api_key
-from app.main import render_bubble, sse
+from app.main import render_bubble, render_sticker, sse
 
 
 def test_sse_frame():
@@ -27,6 +27,13 @@ def test_bubble_marks_role():
     assert 'class="line boke"' in render_bubble(BOKE, "만담")
     assert 'class="line tsukkomi"' in render_bubble(TSUKKOMI, "만담")
     assert 'class="line error"' in render_bubble("무대", "사고", "error")
+
+
+def test_sticker_is_its_own_message():
+    html = render_sticker(TSUKKOMI, "츳코미")
+    assert 'class="line tsukkomi sticker"' in html
+    assert "/static/emoji/tsukkomi.svg" in html
+    assert "bubble" not in html  # 말풍선에 얹히는 장식이 아니다
 
 
 def test_transcript_first_line_has_no_history():

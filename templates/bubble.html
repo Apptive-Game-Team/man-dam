@@ -1,7 +1,4 @@
 <article class="line {{ role }}">
   <div class="who"><span class="badge">{{ {"boke": "보케", "tsukkomi": "츳코미"}.get(role, "알림") }}</span>{{ speaker }}</div>
-  <div class="say">
-    <p class="bubble">{{ text }}</p>
-    {% if emoji %}<img class="emoji" src="/static/emoji/{{ emoji }}.svg" alt="" width="44" height="44">{% endif %}
-  </div>
+  <p class="bubble">{{ text }}</p>
 </article>

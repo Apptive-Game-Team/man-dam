@@ -38,13 +38,20 @@ def sse(payload: str, event: str | None = None) -> str:
     return f"{head}{body}\n"
 
 
-def render_bubble(
-    speaker: str, text: str, role: str | None = None, action: str | None = None
-) -> str:
-    if role is None:
-        role = "boke" if speaker == BOKE else "tsukkomi"
+def role_of(speaker: str) -> str:
+    return "boke" if speaker == BOKE else "tsukkomi"
+
+
+def render_bubble(speaker: str, text: str, role: str | None = None) -> str:
     return templates.get_template("bubble.html").render(
-        speaker=speaker, text=text, role=role, emoji=EMOJI.get(action or "")
+        speaker=speaker, text=text, role=role or role_of(speaker)
+    )
+
+
+def render_sticker(speaker: str, action: str) -> str:
+    """이모티콘은 말풍선에 붙는 장식이 아니라 그 자체로 하나의 메시지다."""
+    return templates.get_template("sticker.html").render(
+        role=role_of(speaker), emoji=EMOJI[action], label=action
     )
 
 
@@ -60,7 +67,10 @@ async def stream(topic: str | None = None) -> StreamingResponse:
     async def lines() -> AsyncIterator[str]:
         try:
             async for speaker, action, text in perform(subject):
-                yield sse(render_bubble(speaker, text, action=action))
+                yield sse(render_bubble(speaker, text))
+                if action:
+                    # 대사가 먼저, 리액션이 뒤. 그래야 한 박자 늦게 얻어맞는다.
+                    yield sse(render_sticker(speaker, action))
         except Exception:
             # 무대가 멈춘 채로 방치되면 뭐가 잘못됐는지 화면에서 알 수 없다.
             log.exception("만담 생성 실패")
