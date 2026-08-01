@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">팔을 뻗어 검지로 삿대질하는 동작</title>
+  <path d="M5 116 L9 77 Q26 66 46 75 L57 116Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
+  <circle cx="28" cy="47" r="27" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
+  <circle cx="20" cy="44" r="4" fill="#17303a"/><circle cx="37" cy="44" r="4" fill="#17303a"/>
+  <path d="M18 59 L39 59" stroke="#17303a" stroke-width="6" stroke-linecap="round"/>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="-12 0;10 0;-12 0;10 0;-12 0" dur="1s" repeatCount="indefinite"/>
+    <path d="M38 83 Q62 67 88 67" fill="none" stroke="#f0a84a" stroke-width="20" stroke-linecap="round"/>
+    <path d="M38 83 Q62 67 88 67" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
+    <path d="M85 67 L115 67" stroke="#f6ead6" stroke-width="12" stroke-linecap="round"/>
+    <path d="M90 66 L104 54" stroke="#f6ead6" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <path d="M104 29 L116 21 M108 40 L118 39 M101 19 L105 5" stroke="#f0a84a" stroke-width="7" stroke-linecap="round">
+    <animate attributeName="opacity" values=".2;1;.2;1;.2" dur="1s" repeatCount="indefinite"/>
+  </path>
+</svg>

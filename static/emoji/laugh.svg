@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">배를 잡고 뒤로 젖혀 폭소하는 동작</title>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" values="-18 60 108;-4 60 108;-18 60 108" dur="1s" repeatCount="indefinite"/>
+    <path d="M37 116 Q33 79 51 68 Q73 67 88 105 L91 116Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="52" cy="43" r="28" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
+    <path d="M38 39 L45 32 L52 39 M58 39 L65 32 L72 39" fill="none" stroke="#17303a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M35 50 Q52 77 71 49 Q53 44 35 50Z" fill="#17303a" stroke="#f6ead6" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M43 84 Q61 100 78 83" fill="none" stroke="#f0a84a" stroke-width="18" stroke-linecap="round"/>
+    <path d="M43 84 Q61 100 78 83" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
+    <path d="M81 82 L104 104" fill="none" stroke="#f0a84a" stroke-width="18" stroke-linecap="round"/>
+    <path d="M81 82 L104 104" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g fill="none" stroke="#f0a84a" stroke-width="8" stroke-linecap="round">
+    <path d="M12 20 Q0 33 13 47 M103 18 Q119 32 105 48 M8 65 Q-1 77 14 88"/>
+    <animateTransform attributeName="transform" type="scale" values=".7;1.15;.7" dur="1s" repeatCount="indefinite"/>
+  </g>
+</svg>

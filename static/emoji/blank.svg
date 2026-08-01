@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">차렷한 채 굳어 한숨 쉬는 동작</title>
+  <g fill="none" stroke="#f0a84a" stroke-width="6" stroke-linecap="round">
+    <path d="M44 2 V29 M52 2 V29 M60 2 V29 M68 2 V29 M76 2 V29"/>
+    <animateTransform attributeName="transform" type="translate" values="0 -2;0 2;0 -2" dur="1.2s" repeatCount="indefinite"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 5;0 0" keyTimes="0;.5;1" dur="1.2s" repeatCount="indefinite"/>
+    <path d="M31 116 L34 78 Q60 68 86 78 L89 116Z" fill="#f0a84a" stroke="#f6ead6" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M39 85 L39 113 M81 85 L81 113" fill="none" stroke="#f0a84a" stroke-width="18" stroke-linecap="round"/>
+    <path d="M39 85 L39 113 M81 85 L81 113" fill="none" stroke="#f6ead6" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="60" cy="49" r="29" fill="#2ec4b6" stroke="#f6ead6" stroke-width="7"/>
+    <circle cx="50" cy="49" r="4" fill="#17303a"/><circle cx="70" cy="49" r="4" fill="#17303a"/>
+    <path d="M48 64 L72 64" stroke="#17303a" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g fill="#f6ead6" opacity="0">
+    <ellipse cx="100" cy="68" rx="19.5" ry="11.7"/><circle cx="83" cy="69" r="9.1"/>
+    <animateTransform attributeName="transform" type="translate" values="-6 4;7 0;20 -3" dur="1.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;1;0" keyTimes="0;.45;1" dur="1.2s" repeatCount="indefinite"/>
+  </g>
+</svg>
