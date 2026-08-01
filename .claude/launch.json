@@ -4,7 +4,16 @@
     {
       "name": "man-dam",
       "runtimeExecutable": "uv",
-      "runtimeArgs": ["run", "uvicorn", "app.main:app", "--reload", "--port", "8000"],
+      "runtimeArgs": [
+        "run",
+        "uvicorn",
+        "app.main:app",
+        "--reload",
+        "--port",
+        "8000",
+        "--env-file",
+        ".env"
+      ],
       "port": 8000
     }
   ]

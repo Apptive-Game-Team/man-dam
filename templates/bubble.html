@@ -1,4 +1,4 @@
 <article class="line {{ role }}">
-  <div class="who"><span class="badge">{{ "보케" if role == "boke" else "츳코미" }}</span>{{ speaker }}</div>
+  <div class="who"><span class="badge">{{ {"boke": "보케", "tsukkomi": "츳코미"}.get(role, "알림") }}</span>{{ speaker }}</div>
   <p class="bubble">{{ text }}</p>
 </article>

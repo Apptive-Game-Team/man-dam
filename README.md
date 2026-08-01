@@ -18,7 +18,7 @@ FastAPI  ──▶  LangGraph  ──▶  DeepSeek API
 
 두 캐릭터 모두 DeepSeek 한 모델로 돌린다. 다른 건 페르소나 프롬프트뿐이다.
 
-LLM이 대사에 액션 태그를 섞어서 뱉는다.
+앞으로 LLM이 대사에 액션 태그를 섞어서 뱉게 된다 (#3).
 
 ```
 [액션:츳코미] 아니 그게 말이 되냐고!
@@ -30,11 +30,13 @@ LLM이 대사에 액션 태그를 섞어서 뱉는다.
 
 ```bash
 uv sync
-export DEEPSEEK_API_KEY=sk-...
-uv run uvicorn app.main:app --reload
+echo "DEEPSEEK_API_KEY=sk-..." > .env
+uv run uvicorn app.main:app --reload --env-file .env
 ```
 
-http://localhost:8000
+http://localhost:8000 — 주제를 바꾸려면 상단 입력칸에 넣고 "이 주제로".
+
+키가 없으면 서버가 기동 시점에 실패한다. 첫 만담 도중에 터지는 것보다 낫다.
 
 ## 스택 선택 이유
 
@@ -47,4 +49,4 @@ http://localhost:8000
 
 ## 상태
 
-기획 및 부트스트랩 단계. 구현 전.
+만담 생성과 스트리밍 동작. 액션 태그와 이모티콘은 아직 없다 (#3).
