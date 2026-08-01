@@ -64,9 +64,23 @@ EXAMPLES: list[dict[str, str]] = [
 ]
 
 
-def as_prompt() -> str:
-    blocks = [
+def overlaps(a: str, b: str) -> bool:
+    """두 주제가 겹치는가. "헬스장" 과 "헬스장 등록" 은 겹친다."""
+    a, b = a.replace(" ", ""), b.replace(" ", "")
+    return bool(a) and bool(b) and (a in b or b in a)
+
+
+def as_prompt(topic: str = "") -> str:
+    """이번 주제와 겹치는 예시는 뺀다.
+
+    모델은 예시를 모방하지 않고 베낀다. 주제가 같으면 전제와 오치를 그대로
+    가져온다. "헬스장 등록" 으로 돌렸더니 예시의 "회원권이 대신 운동한다" 가
+    전제까지 오치까지 그대로 나왔다.
+
+    전부 빠지면 그때는 넣는다. 예시 없는 프롬프트가 베끼는 것보다 나쁘다.
+    """
+    picked = [ex for ex in EXAMPLES if not overlaps(ex["topic"], topic)] or EXAMPLES
+    return "\n\n".join(
         f"[예시 {i}] 주제: {ex['topic']} / 전제: {ex['premise']}\n{ex['script']}"
-        for i, ex in enumerate(EXAMPLES, 1)
-    ]
-    return "\n\n".join(blocks)
+        for i, ex in enumerate(picked, 1)
+    )
