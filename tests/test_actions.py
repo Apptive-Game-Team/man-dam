@@ -43,3 +43,21 @@ def test_every_action_has_an_asset():
     emoji_dir = Path(__file__).resolve().parent.parent / "static" / "emoji"
     for name in EMOJI.values():
         assert (emoji_dir / f"{name}.svg").is_file(), name
+
+
+def test_name_prefix_is_stripped():
+    # 모델이 이름표를 붙이지 말라고 해도 붙인다.
+    assert split_action("Claude: 뭔 소리야") == (None, "뭔 소리야")
+
+
+def test_only_the_first_turn_survives():
+    # 한 응답에 여러 턴을 쏟아내면 말풍선 하나에 만담 전체가 들어간다.
+    reply = "[액션:츳코미] 뭔 소리야\nGPT: 아니 진짜라니까\nClaude: 됐고"
+    assert split_action(reply) == ("츳코미", "뭔 소리야")
+
+
+def test_mid_sentence_tag_is_removed():
+    assert split_action("아니 [액션:당황] 그게 말이 되냐") == (
+        None,
+        "아니 그게 말이 되냐",
+    )

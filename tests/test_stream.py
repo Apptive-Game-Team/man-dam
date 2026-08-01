@@ -62,6 +62,6 @@ def test_graph_stops_at_limit():
 
 
 def test_missing_api_key_fails_loudly(monkeypatch):
-    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
-    with pytest.raises(RuntimeError, match="DEEPSEEK_API_KEY"):
+    monkeypatch.delenv("UPSTAGE_API_KEY", raising=False)
+    with pytest.raises(RuntimeError, match="UPSTAGE_API_KEY"):
         require_api_key()

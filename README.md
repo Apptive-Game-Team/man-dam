@@ -10,13 +10,13 @@ AI 캐릭터 둘이서 만담(漫才)을 주고받는 웹 앱. 단톡방처럼 �
 브라우저 (Jinja2 + HTMX)
     │  SSE
     ▼
-FastAPI  ──▶  LangGraph  ──▶  DeepSeek API
+FastAPI  ──▶  LangGraph  ──▶  Upstage Solar
                  │
                  ├─ 보케 노드   "ChatGPT" 페르소나 — 엉뚱한 소리
                  └─ 츳코미 노드 "Claude"  페르소나 — 즉시 태클
 ```
 
-두 캐릭터 모두 DeepSeek 한 모델로 돌린다. 다른 건 페르소나 프롬프트뿐이다.
+두 캐릭터 모두 Solar 한 모델로 돌린다. 다른 건 페르소나 프롬프트뿐이다.
 
 LLM이 대사에 액션 태그를 섞어서 뱉는다.
 
@@ -30,7 +30,7 @@ LLM이 대사에 액션 태그를 섞어서 뱉는다.
 
 ```bash
 uv sync
-echo "DEEPSEEK_API_KEY=sk-..." > .env
+echo "UPSTAGE_API_KEY=sk-..." > .env
 uv run uvicorn app.main:app --reload --env-file .env
 ```
 
@@ -43,7 +43,7 @@ http://localhost:8000 — 주제를 바꾸려면 상단 입력칸에 넣고 "이
 `main` 에 푸시될 때마다 이미지가 GHCR에 올라간다.
 
 ```bash
-docker run --rm -p 8000:8000 -e DEEPSEEK_API_KEY=sk-... ghcr.io/apptive-game-team/man-dam:latest
+docker run --rm -p 8000:8000 -e UPSTAGE_API_KEY=sk-... ghcr.io/apptive-game-team/man-dam:latest
 ```
 
 `latest` 외에 커밋 SHA 태그도 붙는다. 특정 시점 이미지가 필요하면 `:<commit-sha>` 를 쓴다. 키는 이미지에 들어있지 않다. 실행할 때 넘겨야 한다.
@@ -54,6 +54,7 @@ docker run --rm -p 8000:8000 -e DEEPSEEK_API_KEY=sk-... ghcr.io/apptive-game-tea
 |---|---|
 | Jinja2 | FastAPI 기본 템플릿 엔진. 별도 프론트 빌드 없음 |
 | HTMX + SSE | 대사가 한 줄씩 떨어져야 단톡방 느낌이 산다. 단방향이라 WebSocket 불필요 |
+| Upstage Solar | 한국어 구어체 만담이 소재다. 국내 모델을 쓴다. OpenAI 호환이라 호출 코드는 그대로 |
 | LangGraph | 턴 교대와 종료 판정이 그래프로 그대로 표현된다 |
 | SVG/APNG 이모티콘 | 런타임 애니메이션 라이브러리 없이 `<img>` 하나로 끝 |
 | GHCR + Actions | 이미지 하나로 어디서든 같은 결과. 인증은 워크플로 기본 토큰으로 끝난다 |
