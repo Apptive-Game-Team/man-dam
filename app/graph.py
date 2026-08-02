@@ -21,8 +21,6 @@ from app.actions import EMOJI, PROMPT_RULE, split_action
 from app.examples import as_prompt
 from app.llm import DEEPSEEK, SOLAR, complete
 
-EXAMPLE_BLOCK = as_prompt()
-
 log = logging.getLogger(__name__)
 
 # 대사 수 상한. 없으면 그래프가 영원히 돈다.
@@ -84,7 +82,7 @@ FALLBACK_PLAN: dict[str, Any] = {
     "punchline": "",
 }
 
-SCRIPT_SYSTEM = f"""너는 한국어 만담(漫才) 대본을 쓴다. 기획을 받아 공연 전체를 완성한다.
+SCRIPT_TEMPLATE = f"""너는 한국어 만담(漫才) 대본을 쓴다. 기획을 받아 공연 전체를 완성한다.
 
 JSON 하나만 출력한다.
 
@@ -117,9 +115,11 @@ JSON 하나만 출력한다.
 3. 마지막 줄은 그 전제를 뒤집는다. 그냥 멈추지 마라.
 {PROMPT_RULE}
 
-아래는 잘된 만담이다. 이 밀도와 리듬을 따라라. 내용을 베끼지는 마라.
+아래는 잘된 만담이다. **밀도와 리듬만** 따라라.
+전제, 소재, 오치는 절대 재사용하지 마라. 예시에 나온 물건과 상황은 쓰지 마라.
+따라야 할 것은 한 전제를 끝까지 밀고 계단을 올리고 마지막에 뒤집는 방식이다.
 
-{EXAMPLE_BLOCK}"""
+{{examples}}"""
 
 JSON_BLOCK = re.compile(r"\{.*\}", re.DOTALL)
 NAME = re.compile(r"^[가-힣]{2,3}$")
@@ -230,6 +230,15 @@ async def make_plan(state: State) -> dict:
         return {"plan": FALLBACK_PLAN}
 
 
+def script_system(topic: str) -> str:
+    """이번 주제에 맞춰 예시를 골라 프롬프트를 짠다.
+
+    format()이 아니라 replace()를 쓴다. 프롬프트 안에 JSON 중괄호가 있어서
+    format()은 그걸 채울 필드로 읽는다.
+    """
+    return SCRIPT_TEMPLATE.replace("{examples}", as_prompt(topic))
+
+
 async def write(state: State) -> dict:
     """대본 전체를 한 번에 받는다.
 
@@ -248,7 +257,9 @@ async def write(state: State) -> dict:
             }
         )
     for attempt in range(1, SCRIPT_ATTEMPTS + 1):
-        reply = await complete(DEEPSEEK, SCRIPT_SYSTEM, messages, temperature=0.9, json_mode=True)
+        reply = await complete(
+            DEEPSEEK, script_system(state["topic"]), messages, temperature=0.9, json_mode=True
+        )
         lines = clean_script(parse_plan(reply).get("lines"), plan)
         if len(lines) >= MIN_LINES:
             return {"draft": lines, "rewrites": state.get("rewrites", 0) + 1}
