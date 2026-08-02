@@ -16,10 +16,22 @@ def test_partial_overlap_still_counts():
     assert not examples.overlaps("", "고양이 키우기")
 
 
-def test_unrelated_topic_keeps_every_example():
+def test_only_a_few_examples_are_shown():
+    # 예시가 쌓일수록 프롬프트가 무거워지고 대본이 한 모양으로 굳는다.
     prompt = examples.as_prompt("고양이 키우기")
-    for ex in examples.EXAMPLES:
-        assert ex["premise"] in prompt
+    assert prompt.count("[예시 ") == examples.SHOWN
+    assert len(examples.EXAMPLES) > examples.SHOWN
+
+
+def test_shown_examples_vary_between_runs():
+    seen = {examples.as_prompt("고양이 키우기") for _ in range(12)}
+    assert len(seen) > 1
+
+
+def test_every_shown_example_is_real():
+    prompt = examples.as_prompt("고양이 키우기")
+    premises = [ex["premise"] for ex in examples.EXAMPLES if ex["premise"] in prompt]
+    assert len(premises) == examples.SHOWN
 
 
 def test_nothing_left_falls_back_to_all():
