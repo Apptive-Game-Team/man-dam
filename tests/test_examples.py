@@ -47,3 +47,15 @@ def test_nothing_left_falls_back_to_all():
 def test_prompt_forbids_reusing_the_material():
     prompt = script_system("고양이 키우기")
     assert "재사용하지 마라" in prompt
+
+
+def test_prompt_bans_magic():
+    # 보케가 다른 세계에 살면 츳코미가 "그게 말이 되냐" 말고 할 말이 없다.
+    prompt = script_system("고양이 키우기")
+    assert "마법을 쓰지 않는다" in prompt
+    assert "현실에서 일어날 수 있어야" in prompt
+
+
+def test_prompt_requires_planting_the_punchline():
+    prompt = script_system("고양이 키우기")
+    assert "전반부에 반드시 심어둬라" in prompt
