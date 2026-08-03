@@ -56,3 +56,4 @@ Agents must verify commands against repository configuration before running them
 - Maintainers: Yunseong (me@yunseong.dev)
 - Sensitive modules: `app/llm.py` (API 키 취급)
 - Changes requiring explicit review: 프롬프트 변경 (만담 품질이 곧 제품이다)
+- 재미의 기준은 `docs/funny.md` 가 원본이다. 프롬프트나 채점표를 고치기 전에 그 문서를 먼저 고친다.
